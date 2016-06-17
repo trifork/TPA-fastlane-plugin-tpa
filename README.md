@@ -1,4 +1,4 @@
-# tpa plugin
+# TPA plugin
 
 [![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-tpa)
 
@@ -26,7 +26,7 @@ Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plu
 
 To run both the tests, and code style validation, run
 
-````
+```
 rake
 ```
 
