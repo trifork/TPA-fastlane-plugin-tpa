@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = %q{morten@justabeech.com}
 
   spec.summary       = %q{TPA gives you advanced user behaviour analytics, app distribution, crash analytics and more}
-  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-tpa"
+  spec.homepage      = "https://github.com/mbogh/fastlane-plugin-tpa"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
