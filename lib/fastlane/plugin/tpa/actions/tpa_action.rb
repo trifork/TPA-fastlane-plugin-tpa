@@ -115,7 +115,7 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :publish,
                                        env_name: "FL_TPA_PUBLISH",
                                        description: "Publish build upon upload",
-                                       default_value: false,
+                                       default_value: true,
                                        is_string: false),
           FastlaneCore::ConfigItem.new(key: :force,
                                        env_name: "FL_TPA_FORCE",
