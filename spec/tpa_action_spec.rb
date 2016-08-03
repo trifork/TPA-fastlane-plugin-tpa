@@ -41,7 +41,7 @@ describe Fastlane::Actions::TpaAction do
       end").runner.execute(:test)
 
       expect(result).to include("-F app=@/tmp/file.ipa")
-      expect(result).to include("-F publish=false")
+      expect(result).to include("-F publish=true")
       expect(result).to include("-F force=false")
       expect(result).to include("--silent")
       expect(result).to include("https://my.tpa.io/xxx-yyy-zz/upload")
