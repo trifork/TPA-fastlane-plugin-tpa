@@ -110,7 +110,7 @@ module Fastlane
                                        env_name: "FL_TPA_UPLOAD_URL",
                                        description: "TPA Upload URL",
                                        verify_block: proc do |value|
-                                         UI.user_error!("Please pass your TPA Upload URL using `ENV['TPA_UPLOAD_URL'] = 'value'`") unless value
+                                         UI.user_error!("Please pass your TPA Upload URL using `ENV['FL_TPA_UPLOAD_URL'] = 'value'`") unless value
                                        end),
           FastlaneCore::ConfigItem.new(key: :publish,
                                        env_name: "FL_TPA_PUBLISH",
