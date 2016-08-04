@@ -76,6 +76,7 @@ module Fastlane
         "Upload builds to The Perfect App (TPA.io)"
       end
 
+      # rubocop:disable Metrics/MethodLength
       def self.available_options
         [
           FastlaneCore::ConfigItem.new(key: :ipa,
@@ -144,6 +145,7 @@ module Fastlane
                                        optional: true)
         ]
       end
+      # rubocop:enable Metrics/MethodLength
 
       def self.authors
         ["mbogh"]
