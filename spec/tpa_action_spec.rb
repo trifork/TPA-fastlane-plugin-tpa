@@ -44,6 +44,7 @@ describe Fastlane::Actions::TpaAction do
       expect(result).to include("-F publish=true")
       expect(result).to include("-F force=false")
       expect(result).to include("--silent")
+      expect(result).to include("--progress-bar")
       expect(result).to include("https://my.tpa.io/xxx-yyy-zz/upload")
     end
 
@@ -69,6 +70,18 @@ describe Fastlane::Actions::TpaAction do
       end").runner.execute(:test)
 
       expect(result).to include("-F publish=true")
+    end
+
+    it "should respect progress-bar false" do
+      file_path = '/tmp/file.ipa'
+      FileUtils.touch file_path
+      result = Fastlane::FastFile.new.parse("lane :test do
+        tpa(ipa: '/tmp/file.ipa',
+            upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload',
+            progress-bar: false)
+      end").runner.execute(:test)
+
+      expect(result).not_to include("--progress-bar")
     end
 
     it "should force upload, overriding existing build" do

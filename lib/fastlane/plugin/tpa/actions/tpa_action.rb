@@ -38,6 +38,10 @@ module Fastlane
           options << "-F notes=#{params[:notes]}"
         end
 
+        if params[:progress_bar]
+          options << "--progress-bar"
+        end
+
         options << "-F force=#{params[:force]}"
 
         options
@@ -131,6 +135,12 @@ module Fastlane
                                        description: "Detailed output",
                                        is_string: false,
                                        default_value: false,
+                                       optional: true),
+          FastlaneCore::ConfigItem.new(key: :progress_bar,
+                                       env_name: "FL_TPA_PROGRESS_BAR",
+                                       description: "Show progress bar of upload",
+                                       is_string: false,
+                                       default_value: true,
                                        optional: true)
         ]
       end
