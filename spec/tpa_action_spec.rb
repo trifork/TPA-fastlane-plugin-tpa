@@ -40,7 +40,7 @@ describe Fastlane::Actions::TpaAction do
             upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload')
       end").runner.execute(:test)
 
-      expect(result).to include("-F app=@/tmp/file.ipa")
+      expect(result).to include("-F app=@\"/tmp/file.ipa\"")
       expect(result).to include("-F publish=true")
       expect(result).to include("-F force=false")
       expect(result).to include("--silent")
@@ -92,7 +92,7 @@ describe Fastlane::Actions::TpaAction do
             mapping: '/tmp/file.dSYM.zip')
       end").runner.execute(:test)
 
-      expect(result).to include("-F mapping=@/tmp/file.dSYM.zip")
+      expect(result).to include("-F mapping=@\"/tmp/file.dSYM.zip\"")
     end
 
     it "supports Android as well" do
@@ -103,7 +103,7 @@ describe Fastlane::Actions::TpaAction do
             upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload')
       end").runner.execute(:test)
 
-      expect(result).to include("-F app=@/tmp/file.apk")
+      expect(result).to include("-F app=@\"/tmp/file.apk\"")
     end
 
     it "does not allow both ipa and apk at the same time" do

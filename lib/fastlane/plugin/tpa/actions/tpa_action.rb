@@ -26,10 +26,10 @@ module Fastlane
         app_file = app_file(params)
 
         options = []
-        options << "-F app=@#{app_file}"
+        options << "-F app=@\"#{app_file}\""
 
         if params[:mapping]
-          options << "-F mapping=@#{params[:mapping]}"
+          options << "-F mapping=@\"#{params[:mapping]}\""
         end
 
         options << "-F publish=#{params[:publish]}"
