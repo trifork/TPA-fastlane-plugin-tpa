@@ -22,8 +22,8 @@ describe Fastlane::Actions::TpaAction do
       end.to raise_exception("Something went wrong while uploading your app to TPA: #{result}")
     end
 
-    it "does not raise an error if result is 'OK'" do
-      result = "OK"
+    it "does not raise an error if result is '200'" do
+      result = "| http_status 200"
 
       expect do
         Fastlane::Actions::TpaAction.fail_on_error(result)
