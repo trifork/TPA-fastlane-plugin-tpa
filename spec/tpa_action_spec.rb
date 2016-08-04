@@ -3,6 +3,7 @@ describe Fastlane::Actions::TpaAction do
     it "verbosity is set correctly" do
       expect(Fastlane::Actions::TpaAction.verbose(verbose: true)).to eq "--verbose"
       expect(Fastlane::Actions::TpaAction.verbose(verbose: false)).to eq "--silent"
+      expect(Fastlane::Actions::TpaAction.verbose(verbose: false, progress_bar: true)).to eq nil
     end
 
     it "upload url is returned correctly" do
@@ -43,7 +44,7 @@ describe Fastlane::Actions::TpaAction do
       expect(result).to include("-F app=@\"/tmp/file.ipa\"")
       expect(result).to include("-F publish=true")
       expect(result).to include("-F force=false")
-      expect(result).to include("--silent")
+      expect(result).not_to include("--silent") # Do not include silent because of progress-bar
       expect(result).to include("--progress-bar")
       expect(result).to include("https://my.tpa.io/xxx-yyy-zz/upload")
     end
@@ -82,6 +83,7 @@ describe Fastlane::Actions::TpaAction do
       end").runner.execute(:test)
 
       expect(result).not_to include("--progress-bar")
+      expect(result).to include("--silent")
     end
 
     it "should force upload, overriding existing build" do

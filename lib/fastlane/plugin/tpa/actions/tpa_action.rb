@@ -65,7 +65,11 @@ module Fastlane
       end
 
       def self.verbose(params)
-        params[:verbose] ? "--verbose" : "--silent"
+        if params[:verbose]
+          "--verbose"
+        elsif !params[:progress_bar]
+          "--silent"
+        end
       end
 
       #####################################################
