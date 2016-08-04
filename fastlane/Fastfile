@@ -1,3 +1,6 @@
+# Change URL to your TPA project
+ENV["FL_TPA_UPLOAD_URL"] ||= "https://my.tpa.io/xxx-yyy-zz/upload"
+
 lane :test do
   tpa
 end
