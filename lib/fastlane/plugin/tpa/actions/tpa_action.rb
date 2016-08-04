@@ -7,15 +7,16 @@ module Fastlane
         command << verbose(params)
         command += upload_options(params)
         command << upload_url(params)
+        command << "--no-buffer -w \" | http_status %{http_code}\""
 
         shell_command = command.join(' ')
         return shell_command if Helper.is_test?
-        result = Actions.sh(shell_command, log: params[:verbose])
+        result = Helper.backticks(shell_command, print: params[:verbose])
         fail_on_error(result)
       end
 
       def self.fail_on_error(result)
-        if result == "OK"
+        if result.include? '| http_status 200'
           UI.success('Your app has been uploaded to TPA')
         else
           UI.user_error!("Something went wrong while uploading your app to TPA: #{result}")
