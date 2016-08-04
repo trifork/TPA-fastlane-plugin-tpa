@@ -3,6 +3,7 @@ describe Fastlane::Actions::TpaAction do
     it "verbosity is set correctly" do
       expect(Fastlane::Actions::TpaAction.verbose(verbose: true)).to eq "--verbose"
       expect(Fastlane::Actions::TpaAction.verbose(verbose: false)).to eq "--silent"
+      expect(Fastlane::Actions::TpaAction.verbose(verbose: false, progress_bar: true)).to eq nil
     end
 
     it "upload url is returned correctly" do
@@ -21,8 +22,8 @@ describe Fastlane::Actions::TpaAction do
       end.to raise_exception("Something went wrong while uploading your app to TPA: #{result}")
     end
 
-    it "does not raise an error if result is 'OK'" do
-      result = "OK"
+    it "does not raise an error if result is '200'" do
+      result = "| http_status 200"
 
       expect do
         Fastlane::Actions::TpaAction.fail_on_error(result)
@@ -40,10 +41,11 @@ describe Fastlane::Actions::TpaAction do
             upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload')
       end").runner.execute(:test)
 
-      expect(result).to include("-F app=@/tmp/file.ipa")
+      expect(result).to include("-F app=@\"/tmp/file.ipa\"")
       expect(result).to include("-F publish=true")
       expect(result).to include("-F force=false")
-      expect(result).to include("--silent")
+      expect(result).not_to include("--silent") # Do not include silent because of progress-bar
+      expect(result).to include("--progress-bar")
       expect(result).to include("https://my.tpa.io/xxx-yyy-zz/upload")
     end
 
@@ -71,6 +73,19 @@ describe Fastlane::Actions::TpaAction do
       expect(result).to include("-F publish=true")
     end
 
+    it "should respect progress_bar false" do
+      file_path = '/tmp/file.ipa'
+      FileUtils.touch file_path
+      result = Fastlane::FastFile.new.parse("lane :test do
+        tpa(ipa: '/tmp/file.ipa',
+            upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload',
+            progress_bar: false)
+      end").runner.execute(:test)
+
+      expect(result).not_to include("--progress-bar")
+      expect(result).to include("--silent")
+    end
+
     it "should force upload, overriding existing build" do
       file_path = '/tmp/file.ipa'
       FileUtils.touch file_path
@@ -92,7 +107,7 @@ describe Fastlane::Actions::TpaAction do
             mapping: '/tmp/file.dSYM.zip')
       end").runner.execute(:test)
 
-      expect(result).to include("-F mapping=@/tmp/file.dSYM.zip")
+      expect(result).to include("-F mapping=@\"/tmp/file.dSYM.zip\"")
     end
 
     it "supports Android as well" do
@@ -103,7 +118,7 @@ describe Fastlane::Actions::TpaAction do
             upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload')
       end").runner.execute(:test)
 
-      expect(result).to include("-F app=@/tmp/file.apk")
+      expect(result).to include("-F app=@\"/tmp/file.apk\"")
     end
 
     it "does not allow both ipa and apk at the same time" do

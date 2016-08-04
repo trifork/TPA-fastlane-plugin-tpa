@@ -7,15 +7,16 @@ module Fastlane
         command << verbose(params)
         command += upload_options(params)
         command << upload_url(params)
+        command << "--no-buffer -w \" | http_status %{http_code}\""
 
         shell_command = command.join(' ')
         return shell_command if Helper.is_test?
-        result = Actions.sh(shell_command, log: params[:verbose])
+        result = Helper.backticks(shell_command, print: params[:verbose])
         fail_on_error(result)
       end
 
       def self.fail_on_error(result)
-        if result == "OK"
+        if result.include? '| http_status 200'
           UI.success('Your app has been uploaded to TPA')
         else
           UI.user_error!("Something went wrong while uploading your app to TPA: #{result}")
@@ -26,16 +27,20 @@ module Fastlane
         app_file = app_file(params)
 
         options = []
-        options << "-F app=@#{app_file}"
+        options << "-F app=@\"#{app_file}\""
 
         if params[:mapping]
-          options << "-F mapping=@#{params[:mapping]}"
+          options << "-F mapping=@\"#{params[:mapping]}\""
         end
 
         options << "-F publish=#{params[:publish]}"
 
         if params[:notes]
           options << "-F notes=#{params[:notes]}"
+        end
+
+        if params[:progress_bar]
+          options << "--progress-bar"
         end
 
         options << "-F force=#{params[:force]}"
@@ -61,7 +66,11 @@ module Fastlane
       end
 
       def self.verbose(params)
-        params[:verbose] ? "--verbose" : "--silent"
+        if params[:verbose]
+          "--verbose"
+        elsif !params[:progress_bar]
+          "--silent"
+        end
       end
 
       #####################################################
@@ -72,6 +81,7 @@ module Fastlane
         "Upload builds to The Perfect App (TPA.io)"
       end
 
+      # rubocop:disable Metrics/MethodLength
       def self.available_options
         [
           FastlaneCore::ConfigItem.new(key: :ipa,
@@ -131,9 +141,16 @@ module Fastlane
                                        description: "Detailed output",
                                        is_string: false,
                                        default_value: false,
+                                       optional: true),
+          FastlaneCore::ConfigItem.new(key: :progress_bar,
+                                       env_name: "FL_TPA_PROGRESS_BAR",
+                                       description: "Show progress bar of upload",
+                                       is_string: false,
+                                       default_value: true,
                                        optional: true)
         ]
       end
+      # rubocop:enable Metrics/MethodLength
 
       def self.authors
         ["mbogh"]
