@@ -7,7 +7,7 @@ module Fastlane
         command << verbose(params)
         command += upload_options(params)
         command << upload_url(params)
-        command << "--no-buffer -w \" | http_status %{http_code}\""
+        command << "--no-buffer -w \" | http_status %<http_code>s\""
 
         shell_command = command.join(' ')
         return shell_command if Helper.is_test?
@@ -16,7 +16,7 @@ module Fastlane
       end
 
       def self.fail_on_error(result)
-        if result.include? '| http_status 200'
+        if result.include?('| http_status 200')
           UI.success('Your app has been uploaded to TPA')
         else
           UI.user_error!("Something went wrong while uploading your app to TPA: #{result}")
@@ -81,7 +81,6 @@ module Fastlane
         "Upload builds to The Perfect App (TPA.io)"
       end
 
-      # rubocop:disable Metrics/MethodLength
       def self.available_options
         [
           FastlaneCore::ConfigItem.new(key: :ipa,
@@ -157,7 +156,7 @@ module Fastlane
       end
 
       def self.is_supported?(platform)
-        [:ios, :android].include? platform
+        [:ios, :android].include?(platform)
       end
     end
   end

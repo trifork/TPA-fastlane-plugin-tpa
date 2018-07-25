@@ -1,17 +1,17 @@
 describe Fastlane::Actions::TpaAction do
   describe "The Perfect App integration" do
     it "verbosity is set correctly" do
-      expect(Fastlane::Actions::TpaAction.verbose(verbose: true)).to eq "--verbose"
-      expect(Fastlane::Actions::TpaAction.verbose(verbose: false)).to eq "--silent"
-      expect(Fastlane::Actions::TpaAction.verbose(verbose: false, progress_bar: true)).to eq nil
+      expect(Fastlane::Actions::TpaAction.verbose(verbose: true)).to eq("--verbose")
+      expect(Fastlane::Actions::TpaAction.verbose(verbose: false)).to eq("--silent")
+      expect(Fastlane::Actions::TpaAction.verbose(verbose: false, progress_bar: true)).to eq(nil)
     end
 
     it "upload url is returned correctly" do
       url = 'https://someproject.tpa.io/some-very-special-uuid/upload'
-      expect(Fastlane::Actions::TpaAction.upload_url(upload_url: url)).to eq url
+      expect(Fastlane::Actions::TpaAction.upload_url(upload_url: url)).to eq(url)
 
       url = 'My Not So Normal URL ?__.../\.'
-      expect(Fastlane::Actions::TpaAction.upload_url(upload_url: url)).to eq url
+      expect(Fastlane::Actions::TpaAction.upload_url(upload_url: url)).to eq(url)
     end
 
     it "raises an error if result is not 'OK'" do
@@ -27,7 +27,7 @@ describe Fastlane::Actions::TpaAction do
 
       expect do
         Fastlane::Actions::TpaAction.fail_on_error(result)
-      end.to_not raise_exception
+      end.to_not(raise_exception)
     end
 
     it "mandatory options are used correctly" do
@@ -35,7 +35,7 @@ describe Fastlane::Actions::TpaAction do
       Fastlane::Actions.lane_context[Fastlane::Actions::SharedValues::DSYM_OUTPUT_PATH] = nil
 
       file_path = '/tmp/file.ipa'
-      FileUtils.touch file_path
+      FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
             upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload')
@@ -44,14 +44,14 @@ describe Fastlane::Actions::TpaAction do
       expect(result).to include("-F app=@\"/tmp/file.ipa\"")
       expect(result).to include("-F publish=true")
       expect(result).to include("-F force=false")
-      expect(result).not_to include("--silent") # Do not include silent because of progress-bar
+      expect(result).not_to(include("--silent")) # Do not include silent because of progress-bar
       expect(result).to include("--progress-bar")
       expect(result).to include("https://my.tpa.io/xxx-yyy-zz/upload")
     end
 
     it "should include release notes if provided" do
       file_path = '/tmp/file.ipa'
-      FileUtils.touch file_path
+      FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
             upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload',
@@ -63,7 +63,7 @@ describe Fastlane::Actions::TpaAction do
 
     it "should publish" do
       file_path = '/tmp/file.ipa'
-      FileUtils.touch file_path
+      FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
             upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload',
@@ -75,20 +75,20 @@ describe Fastlane::Actions::TpaAction do
 
     it "should respect progress_bar false" do
       file_path = '/tmp/file.ipa'
-      FileUtils.touch file_path
+      FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
             upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload',
             progress_bar: false)
       end").runner.execute(:test)
 
-      expect(result).not_to include("--progress-bar")
+      expect(result).not_to(include("--progress-bar"))
       expect(result).to include("--silent")
     end
 
     it "should force upload, overriding existing build" do
       file_path = '/tmp/file.ipa'
-      FileUtils.touch file_path
+      FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
             upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload',
@@ -100,7 +100,7 @@ describe Fastlane::Actions::TpaAction do
 
     it "should include mapping file if added" do
       file_path = '/tmp/file.ipa'
-      FileUtils.touch file_path
+      FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
             upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload',
@@ -112,7 +112,7 @@ describe Fastlane::Actions::TpaAction do
 
     it "supports Android as well" do
       file_path = '/tmp/file.apk'
-      FileUtils.touch file_path
+      FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(apk: '/tmp/file.apk',
             upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload')
@@ -123,10 +123,10 @@ describe Fastlane::Actions::TpaAction do
 
     it "does not allow both ipa and apk at the same time" do
       file_path_apk = '/tmp/file.apk'
-      FileUtils.touch file_path_apk
+      FileUtils.touch(file_path_apk)
 
       file_path_ipa = '/tmp/file.ipa'
-      FileUtils.touch file_path_ipa
+      FileUtils.touch(file_path_ipa)
 
       expect do
         result = Fastlane::FastFile.new.parse("lane :test do
