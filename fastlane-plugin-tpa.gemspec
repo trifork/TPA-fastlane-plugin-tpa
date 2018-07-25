@@ -19,10 +19,13 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'rest-client', '~> 2.0.2'
 
-  spec.add_development_dependency 'pry'
-  spec.add_development_dependency 'bundler'
-  spec.add_development_dependency 'rspec'
-  spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'rubocop'
-  spec.add_development_dependency 'fastlane', '>= 1.95.0'
+  spec.add_development_dependency('pry')
+  spec.add_development_dependency('bundler')
+  spec.add_development_dependency('rspec')
+  spec.add_development_dependency('rspec_junit_formatter')
+  spec.add_development_dependency('rake')
+  spec.add_development_dependency('rubocop', '0.49.1')
+  spec.add_development_dependency('rubocop-require_tools')
+  spec.add_development_dependency('simplecov')
+  spec.add_development_dependency('fastlane', '>= 2.100.1')
 end
