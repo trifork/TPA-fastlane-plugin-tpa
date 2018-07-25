@@ -26,7 +26,7 @@ module Fastlane
 
         UI.success("Successfully uploaded dSYM files to TPA 🎉")
       end
-      
+
       def self.upload_dsym(params, path)
         UI.message("Uploading '#{path}'...")
         identifier, version, build = File.basename(path, ".dSYM.zip").split('-')
@@ -36,7 +36,7 @@ module Fastlane
         command << "-F mapping=#{path}"
         command << "-F identifier=#{identifier}"
         command << "-F version=#{version}"
-        command << "#{params[:upload_url]}" 
+        command << (params[:upload_url]).to_s
         begin
           command_to_execute = command.join(" ")
           UI.verbose("upload_dsym using command: #{command_to_execute}")
