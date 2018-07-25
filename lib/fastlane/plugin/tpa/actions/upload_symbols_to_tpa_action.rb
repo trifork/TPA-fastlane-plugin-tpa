@@ -37,30 +37,12 @@ module Fastlane
         UI.success("Successfully uploaded dSYM files to TPA 🎉")
       end
 
-      # Extracts the TPA host name from the upload_url using a regular expression
-      def self.tpa_host(params)
-        match_groups = params[:upload_url].match("^(?<tpa_host>https:\/\/.*)\/.+\/upload$")
-        if match_groups.nil?
-          raise "Failed to extract TPA host from the provided upload url. Please double check that the given upload url is correct."
-        end
-        return match_groups[:tpa_host]
-      end
-
-      # Extracts the API UUID from the upload_url using a regular expression
-      def self.api_uuid(params)
-        match_groups = params[:upload_url].match("^https:\/\/.*\/(?<api_uuid>.+)\/upload$")
-        if match_groups.nil?
-          raise "Failed to extract API UUID from the provided upload url. Please double check that the given upload url is correct."
-        end
-        return match_groups[:api_uuid]
-      end
-
       def self.download_known_dsyms(params)
         UI.message("Downloading list of dSYMs already uploaded to TPA...")
 
-        tpa_host = tpa_host(params)
-        api_uuid = api_uuid(params)
-        app_identifier = params[:app_identifier]
+        tpa_host = Helper::UploadSymbolsToTpaHelper.tpa_host(params)
+        api_uuid = Helper::UploadSymbolsToTpaHelper.api_uuid(params)
+        app_identifier = Helper::UploadSymbolsToTpaHelper.app_identifier(params)
         url = "#{tpa_host}/rest/api/v2/projects/#{api_uuid}/apps/#{app_identifier}/symbols/"
 
         begin
@@ -106,13 +88,13 @@ module Fastlane
           meta_data = parse_meta_data(path)
 
           # Double checks that the app_identifier is as intended
-          unless meta_data[:app_identifier] == params[:app_identifier]
+          unless meta_data[:app_identifier] == Helper::UploadSymbolsToTpaHelper.app_identifier(params)
             raise "App identifier of dSYM path does not match app identifier specified in Fastfile"
           end
 
           # Constructs the url
-          tpa_host = tpa_host(params)
-          api_uuid = api_uuid(params)
+          tpa_host = Helper::UploadSymbolsToTpaHelper.tpa_host(params)
+          api_uuid = Helper::UploadSymbolsToTpaHelper.api_uuid(params)
           url = "#{tpa_host}/rest/api/v2/projects/#{api_uuid}/apps/#{meta_data[:app_identifier]}/versions/#{meta_data[:build]}/symbols/"
 
           # Uploads the dSYM to TPA
