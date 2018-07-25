@@ -5,6 +5,8 @@ module Fastlane
   module Actions
     class UploadSymbolsToTpaAction < Action
       def self.run(params)
+        require 'net/http'
+
         # Params - dSYM
         dsym_paths = []
         dsym_paths << params[:dsym_path] if params[:dsym_path]
@@ -19,12 +21,57 @@ module Fastlane
         dsym_paths = dsym_paths.collect { |a| File.expand_path(a) }
         dsym_paths.uniq!
 
+        # Fetches a list of dSYM files already uploaded to TPA
+        known_dsyms = download_known_dsyms(params)
+
+        # TODO: Only upload dSYM which has not yet been uploaded
+
         # Handles each dSYM file
         dsym_paths.each do |current_path|
           upload_dsym(params, current_path)
         end
 
         UI.success("Successfully uploaded dSYM files to TPA 🎉")
+      end
+
+      # Extracts the TPA host name from the upload_url using a regular expression
+      def self.tpa_host(params)
+        match_groups = params[:upload_url].match("^(?<tpa_host>https:\/\/.*)\/.+\/upload$")
+        if match_groups.nil?
+          raise "Failed to extract TPA host from the provided upload url. Please double check that the given upload url is correct."
+        end
+        return match_groups[:tpa_host]
+      end
+
+      # Extracts the API UUID from the upload_url using a regular expression
+      def self.api_uuid(params)
+        match_groups = params[:upload_url].match("^https:\/\/.*\/(?<api_uuid>.+)\/upload$")
+        if match_groups.nil?
+          raise "Failed to extract API UUID from the provided upload url. Please double check that the given upload url is correct."
+        end
+        return match_groups[:api_uuid]
+      end
+
+      def self.download_known_dsyms(params)
+        UI.message("Downloading list of dSYMs already uploaded to TPA...")
+
+        tpa_host = tpa_host(params)
+        api_uuid = api_uuid(params)
+        app_identifier = params[:app_identifier]
+        url = "#{tpa_host}/rest/api/v2/projects/#{api_uuid}/apps/#{app_identifier}/symbols/"
+
+        begin
+          uri = URI(url)
+          req = Net::HTTP::Get.new(uri)
+          req['X-API-Key'] = params[:api_key]
+          res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+            http.request(req)
+          end
+          result = JSON.parse(res.body)
+        rescue => ex
+          raise ex
+        end
+        return result
       end
 
       def self.upload_dsym(params, path)
@@ -81,7 +128,21 @@ module Fastlane
                                        description: "The TPA upload url",
                                        verify_block: proc do |value|
                                          UI.user_error!("Please pass your TPA Upload URL using `ENV['FL_TPA_UPLOAD_URL'] = 'value'`") unless value
-                                       end)
+                                       end),
+          FastlaneCore::ConfigItem.new(key: :api_key,
+                                       env_name: "FL_TPA_API_KEY",
+                                       description: "An API key to TPA",
+                                       verify_block: proc do |value|
+                                         UI.user_error!("Please pass your TPA API key.using `ENV['FL_TPA_API_KEY'] = 'value'`") unless value
+                                       end),
+          FastlaneCore::ConfigItem.new(key: :app_identifier,
+                                       short_option: "-a",
+                                       env_name: "FL_TPA_APP_IDENTIFIER",
+                                       description: "The bundle identifier of your app",
+                                       optional: false,
+                                       code_gen_sensitive: true,
+                                       default_value: CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier),
+                                       default_value_dynamic: true)
         ]
       end
 
