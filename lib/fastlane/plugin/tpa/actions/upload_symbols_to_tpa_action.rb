@@ -5,6 +5,7 @@ module Fastlane
   module Actions
     class UploadSymbolsToTpaAction < Action
       def self.run(params)
+        require 'digest/md5'
         require 'rest_client'
 
         # Params - dSYM
@@ -29,7 +30,7 @@ module Fastlane
           if should_upload_dsym(params, known_dsyms, current_path)
             upload_dsym(params, current_path)
           else
-            UI.message("Has already been uploaded '#{path}'")
+            UI.message("Already uploaded: '#{current_path}'")
           end
         end
 
@@ -73,8 +74,28 @@ module Fastlane
 
       # Checks whether the given dsym path already exists in the list of known_dsyms
       def self.should_upload_dsym(params, known_dsyms, path)
-        # TODO: Implement method
-        return true
+        meta_data = parse_meta_data(path)
+
+        # Constructs the dictionary to compare
+        dict = {
+          'filename' => File.basename(path),
+          'version_number' => meta_data[:build],
+          'version_string' => meta_data[:version],
+          'hash' => Digest::MD5.hexdigest(File.read(path))
+        }
+
+        has_already_been_uploaded = known_dsyms.include?(dict)
+        return !has_already_been_uploaded
+      end
+
+      # Parses the app identifier, version and build number from the dSYM path
+      def self.parse_meta_data(path)
+        # Extracts the app_identifier, version and build number from the path
+        match_groups = File.basename(path).match("^(?<app_identifier>.+)-(?<version>.+)-(?<build>.+).dSYM.zip$")
+        if match_groups.nil?
+          raise "Failed to extract app identifier, version and build number from the #{path}"
+        end
+        return match_groups
       end
 
       # Uploads the given dsym path to TPA
@@ -82,27 +103,20 @@ module Fastlane
         UI.message("Uploading '#{path}'...")
 
         begin
-          # Extracts the app_identifier, version and build number from the path
-          match_groups = File.basename(path).match("^(?<app_identifier>.+)-(?<version>.+)-(?<build>.+).dSYM.zip$")
-          if match_groups.nil?
-            raise "Failed to extract app identifier, version and build number from the #{path}"
-          end
-          app_identifier = match_groups[:app_identifier]
-          version = match_groups[:version]
-          build = match_groups[:build]
+          meta_data = parse_meta_data(path)
 
           # Double checks that the app_identifier is as intended
-          unless app_identifier == params[:app_identifier]
+          unless meta_data[:app_identifier] == params[:app_identifier]
             raise "App identifier of dSYM path does not match app identifier specified in Fastfile"
           end
 
           # Constructs the url
           tpa_host = tpa_host(params)
           api_uuid = api_uuid(params)
-          url = "#{tpa_host}/rest/api/v2/projects/#{api_uuid}/apps/#{app_identifier}/versions/#{build}/symbols/"
+          url = "#{tpa_host}/rest/api/v2/projects/#{api_uuid}/apps/#{meta_data[:app_identifier]}/versions/#{meta_data[:build]}/symbols/"
 
           # Uploads the dSYM to TPA
-          RestClient.post(url, { version_string: version, mapping: File.new(path, 'rb') }, { :"X-API-Key" => params[:api_key] })
+          RestClient.post(url, { version_string: meta_data[:version], mapping: File.new(path, 'rb') }, { :"X-API-Key" => params[:api_key] })
         rescue => ex
           UI.error(ex.to_s) # it fails, however we don't want to fail everything just for this
         end
