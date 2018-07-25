@@ -140,7 +140,7 @@ module Fastlane
                                        description: "An API key to TPA",
                                        optional: false,
                                        verify_block: proc do |value|
-                                         UI.user_error!("Please pass your TPA API key.using `ENV['FL_TPA_API_KEY'] = 'value'`") unless value
+                                         UI.user_error!("The TPA API key cannot be empty") if value.to_s.length.zero?
                                        end),
           FastlaneCore::ConfigItem.new(key: :app_identifier,
                                        short_option: "-a",
