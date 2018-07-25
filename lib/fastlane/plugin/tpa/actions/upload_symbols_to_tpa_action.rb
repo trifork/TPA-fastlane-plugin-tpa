@@ -109,15 +109,15 @@ module Fastlane
       #####################################################
 
       def self.description
-        "Upload dsym files downloaded from iTunesConnect directly to TPA"
+        "Upload dsym files downloaded from App Store Connect directly to TPA"
       end
 
       def self.details
         [
-          "If your app uses Bitcode, then the final dsym files are not generated upon compile time.",
-          "Instead you have to go to iTunesConnect and downloade the dsym files after Apple has",
+          "If your app uses Bitcode, then the final dSYM files are not generated upon compile time.",
+          "Instead you have to go to App Store Connect and download the dSYM files after Apple has",
           "processed your app. Afterwards you need to upload these files to TPA in order to allow",
-          "Thefor symbolication of the crash reports. You can use this plugin to streamline and",
+          "for symbolication of the crash reports. You can use this plugin to streamline and",
           "automate this whole process."
         ].join(" ")
       end
@@ -126,7 +126,7 @@ module Fastlane
         [
           FastlaneCore::ConfigItem.new(key: :dsym_path,
                                        env_name: "FL_UPLOAD_SYMBOLS_TO_TPA_DSYM_PATH",
-                                       description: "Path to the DSYM zip file to upload",
+                                       description: "Path to the dSYM zip file to upload",
                                        default_value: ENV[SharedValues::DSYM_OUTPUT_PATH.to_s] || (Dir["./**/*.dSYM.zip"]).sort_by { |f| File.mtime(f) }.last,
                                        default_value_dynamic: true,
                                        optional: true,
@@ -170,7 +170,7 @@ module Fastlane
       end
 
       def self.is_supported?(platform)
-        [:ios].include?(platform)
+        [:ios, :tvos].include?(platform)
       end
 
       def self.example_code

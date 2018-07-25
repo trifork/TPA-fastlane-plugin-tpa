@@ -15,7 +15,7 @@ fastlane add_plugin tpa
 This plugin provides two actions for interacting with TPA:
 
 - `tpa`: Uploads a given iOS or Android build to TPA
-- `upload_symbols_to_tpa_action`: Uploads the given dSYM files to TPA
+- `upload_symbols_to_tpa`: Uploads the given dSYM files to TPA
 
 ## About tpa
 
