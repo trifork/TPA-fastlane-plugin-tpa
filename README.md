@@ -10,6 +10,13 @@ This project is a [fastlane](https://github.com/fastlane/fastlane) plugin. To ge
 fastlane add_plugin tpa
 ```
 
+## Actions
+
+This plugin provides two actions for interacting with TPA:
+
+- `tpa`: Uploads a given iOS or Android build to TPA
+- `upload_symbols_to_tpa_action`: Uploads the given dSYM files to TPA
+
 ## About tpa
 
 TPA gives you advanced user behaviour analytics, app distribution, crash analytics and more
