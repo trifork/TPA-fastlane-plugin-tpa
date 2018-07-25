@@ -7,7 +7,7 @@ module Fastlane
         command << verbose(params)
         command += upload_options(params)
         command << upload_url(params)
-        command << "--no-buffer -w \" | http_status %<http_code>s\""
+        command << "--no-buffer -w \" | http_status %{http_code}\""
 
         shell_command = command.join(' ')
         return shell_command if Helper.is_test?
