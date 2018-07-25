@@ -56,7 +56,7 @@ module Fastlane
 
       # Checks whether the given dsym path already exists in the list of known_dsyms
       def self.should_upload_dsym(params, known_dsyms, path)
-        meta_data = parse_meta_data(path)
+        meta_data = Helper::UploadSymbolsToTpaHelper.parse_meta_data(path)
 
         # Constructs the dictionary to compare
         dict = {
@@ -70,22 +70,12 @@ module Fastlane
         return !has_already_been_uploaded
       end
 
-      # Parses the app identifier, version and build number from the dSYM path
-      def self.parse_meta_data(path)
-        # Extracts the app_identifier, version and build number from the path
-        match_groups = File.basename(path).match("^(?<app_identifier>.+)-(?<version>.+)-(?<build>.+).dSYM.zip$")
-        if match_groups.nil?
-          raise "Failed to extract app identifier, version and build number from the #{path}"
-        end
-        return match_groups
-      end
-
       # Uploads the given dsym path to TPA
       def self.upload_dsym(params, path)
         UI.message("Uploading '#{path}'...")
 
         begin
-          meta_data = parse_meta_data(path)
+          meta_data = Helper::UploadSymbolsToTpaHelper.parse_meta_data(path)
 
           # Double checks that the app_identifier is as intended
           unless meta_data[:app_identifier] == Helper::UploadSymbolsToTpaHelper.app_identifier(params)

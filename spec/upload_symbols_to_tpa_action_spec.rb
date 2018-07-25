@@ -66,5 +66,13 @@ describe Fastlane::Actions::UploadSymbolsToTpaAction do
       app_identifier = Fastlane::Helper::UploadSymbolsToTpaHelper.app_identifier(params)
       expect(app_identifier).to eq 'my-awesome-app_identifier'
     end
+
+    it 'extracts the app identifier, version string and build number from the dSYM file path' do
+      dsym_path = '/tmp/com.theperfectapp.Awesome-App-1.0-78.dSYM.zip'
+      meta_data = Fastlane::Helper::UploadSymbolsToTpaHelper.parse_meta_data(dsym_path)
+      expect(meta_data[:app_identifier]).to eq 'com.theperfectapp.Awesome-App'
+      expect(meta_data[:version]).to eq '1.0'
+      expect(meta_data[:build]).to eq '78'
+    end
   end
 end
