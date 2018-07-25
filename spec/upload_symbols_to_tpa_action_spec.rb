@@ -49,24 +49,6 @@ describe Fastlane::Actions::UploadSymbolsToTpaAction do
   end
 
   describe 'The helper' do
-    it 'extracts the API UUID from the parameters' do
-      params = { upload_url: 'https://someproject.tpa.io/some-very-special-uuid/upload' }
-      tpa_host = Fastlane::Helper::UploadSymbolsToTpaHelper.tpa_host(params)
-      expect(tpa_host).to eq 'https://someproject.tpa.io'
-    end
-
-    it 'extracts the host name from the parameters' do
-      params = { upload_url: 'https://someproject.tpa.io/some-very-special-uuid/upload' }
-      api_uuid = Fastlane::Helper::UploadSymbolsToTpaHelper.api_uuid(params)
-      expect(api_uuid).to eq 'some-very-special-uuid'
-    end
-
-    it 'extracts the host name from the parameters' do
-      params = { app_identifier: 'my-awesome-app_identifier' }
-      app_identifier = Fastlane::Helper::UploadSymbolsToTpaHelper.app_identifier(params)
-      expect(app_identifier).to eq 'my-awesome-app_identifier'
-    end
-
     it 'extracts the app identifier, version string and build number from the dSYM file path' do
       dsym_path = '/tmp/com.theperfectapp.Awesome-App-1.0-78.dSYM.zip'
       meta_data = Fastlane::Helper::UploadSymbolsToTpaHelper.parse_meta_data(dsym_path)

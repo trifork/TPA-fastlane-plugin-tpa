@@ -13,7 +13,7 @@ module Fastlane
         dsym_paths << params[:dsym_path] if params[:dsym_path]
         dsym_paths += Actions.lane_context[SharedValues::DSYM_PATHS] if Actions.lane_context[SharedValues::DSYM_PATHS]
 
-        if dsym_paths.count == 0
+        if dsym_paths.count.zero?
           UI.error("Couldn't find any dSYMs, please pass them using the dsym_path option")
           return nil
         end
@@ -40,10 +40,7 @@ module Fastlane
       def self.download_known_dsyms(params)
         UI.message("Downloading list of dSYMs already uploaded to TPA...")
 
-        tpa_host = Helper::UploadSymbolsToTpaHelper.tpa_host(params)
-        api_uuid = Helper::UploadSymbolsToTpaHelper.api_uuid(params)
-        app_identifier = Helper::UploadSymbolsToTpaHelper.app_identifier(params)
-        url = "#{tpa_host}/rest/api/v2/projects/#{api_uuid}/apps/#{app_identifier}/symbols/"
+        url = "#{params[:tpa_host]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/#{params[:app_identifier]}/symbols/"
 
         begin
           res = RestClient.get(url, { :"X-API-Key" => params[:api_key] })
@@ -78,14 +75,12 @@ module Fastlane
           meta_data = Helper::UploadSymbolsToTpaHelper.parse_meta_data(path)
 
           # Double checks that the app_identifier is as intended
-          unless meta_data[:app_identifier] == Helper::UploadSymbolsToTpaHelper.app_identifier(params)
+          unless meta_data[:app_identifier] == params[:app_identifier]
             raise "App identifier of dSYM path does not match app identifier specified in Fastfile"
           end
 
           # Constructs the url
-          tpa_host = Helper::UploadSymbolsToTpaHelper.tpa_host(params)
-          api_uuid = Helper::UploadSymbolsToTpaHelper.api_uuid(params)
-          url = "#{tpa_host}/rest/api/v2/projects/#{api_uuid}/apps/#{meta_data[:app_identifier]}/versions/#{meta_data[:build]}/symbols/"
+          url = "#{params[:tpa_host]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/#{meta_data[:app_identifier]}/versions/#{meta_data[:build]}/symbols/"
 
           # Uploads the dSYM to TPA
           RestClient.post(url, { version_string: meta_data[:version], mapping: File.new(path, 'rb') }, { :"X-API-Key" => params[:api_key] })
@@ -124,15 +119,26 @@ module Fastlane
                                          UI.user_error!("Couldn't find file at path '#{File.expand_path(value)}'") unless File.exist?(value)
                                          UI.user_error!("Symbolication file needs to be zip") unless value.end_with?(".zip")
                                        end),
-          FastlaneCore::ConfigItem.new(key: :upload_url,
-                                       env_name: "FL_TPA_UPLOAD_URL",
-                                       description: "The TPA upload url",
+          FastlaneCore::ConfigItem.new(key: :tpa_host,
+                                       env_name: "FL_TPA_HOST_URL",
+                                       description: "The TPA host url",
+                                       optional: false,
                                        verify_block: proc do |value|
-                                         UI.user_error!("Please pass your TPA Upload URL using `ENV['FL_TPA_UPLOAD_URL'] = 'value'`") unless value
+                                         UI.user_error!("The TPA host cannot be empty") if value.to_s.length.zero?
+                                         UI.user_error!("Please specify a host name beginning with https://") unless value.start_with?("https://")
+                                         UI.user_error!("Please specify a host name which ends with .tpa.io") unless value.end_with?(".tpa.io", ".tpa.io/")
+                                       end),
+          FastlaneCore::ConfigItem.new(key: :api_uuid,
+                                       env_name: "FL_TPA_API_UUID",
+                                       description: "The API UUID of the project",
+                                       optional: false,
+                                       verify_block: proc do |value|
+                                         UI.user_error!("The TPA API UUID cannot be empty") if value.to_s.length.zero?
                                        end),
           FastlaneCore::ConfigItem.new(key: :api_key,
                                        env_name: "FL_TPA_API_KEY",
                                        description: "An API key to TPA",
+                                       optional: false,
                                        verify_block: proc do |value|
                                          UI.user_error!("Please pass your TPA API key.using `ENV['FL_TPA_API_KEY'] = 'value'`") unless value
                                        end),
