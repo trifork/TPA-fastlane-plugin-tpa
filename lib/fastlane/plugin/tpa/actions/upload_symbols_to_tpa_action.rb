@@ -5,7 +5,7 @@ module Fastlane
   module Actions
     class UploadSymbolsToTpaAction < Action
       def self.run(params)
-        require 'net/http'
+        require 'rest_client'
 
         # Params - dSYM
         dsym_paths = []
@@ -24,11 +24,13 @@ module Fastlane
         # Fetches a list of dSYM files already uploaded to TPA
         known_dsyms = download_known_dsyms(params)
 
-        # TODO: Only upload dSYM which has not yet been uploaded
-
         # Handles each dSYM file
         dsym_paths.each do |current_path|
-          upload_dsym(params, current_path)
+          if should_upload_dsym(params, known_dsyms, current_path)
+            upload_dsym(params, current_path)
+          else
+            UI.message("Has already been uploaded '#{path}'")
+          end
         end
 
         UI.success("Successfully uploaded dSYM files to TPA 🎉")
@@ -61,12 +63,7 @@ module Fastlane
         url = "#{tpa_host}/rest/api/v2/projects/#{api_uuid}/apps/#{app_identifier}/symbols/"
 
         begin
-          uri = URI(url)
-          req = Net::HTTP::Get.new(uri)
-          req['X-API-Key'] = params[:api_key]
-          res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
-            http.request(req)
-          end
+          res = RestClient.get(url, { :"X-API-Key" => params[:api_key] })
           result = JSON.parse(res.body)
         rescue => ex
           raise ex
@@ -74,20 +71,38 @@ module Fastlane
         return result
       end
 
+      # Checks whether the given dsym path already exists in the list of known_dsyms
+      def self.should_upload_dsym(params, known_dsyms, path)
+        # TODO: Implement method
+        return true
+      end
+
+      # Uploads the given dsym path to TPA
       def self.upload_dsym(params, path)
         UI.message("Uploading '#{path}'...")
-        identifier, version, build = File.basename(path, ".dSYM.zip").split('-')
-        command = []
-        command << "curl"
-        command << "--fail"
-        command << "-F mapping=#{path}"
-        command << "-F identifier=#{identifier}"
-        command << "-F version=#{version}"
-        command << (params[:upload_url]).to_s
+
         begin
-          command_to_execute = command.join(" ")
-          UI.verbose("upload_dsym using command: #{command_to_execute}")
-          Actions.sh(command_to_execute, log: false)
+          # Extracts the app_identifier, version and build number from the path
+          match_groups = File.basename(path).match("^(?<app_identifier>.+)-(?<version>.+)-(?<build>.+).dSYM.zip$")
+          if match_groups.nil?
+            raise "Failed to extract app identifier, version and build number from the #{path}"
+          end
+          app_identifier = match_groups[:app_identifier]
+          version = match_groups[:version]
+          build = match_groups[:build]
+
+          # Double checks that the app_identifier is as intended
+          unless app_identifier == params[:app_identifier]
+            raise "App identifier of dSYM path does not match app identifier specified in Fastfile"
+          end
+
+          # Constructs the url
+          tpa_host = tpa_host(params)
+          api_uuid = api_uuid(params)
+          url = "#{tpa_host}/rest/api/v2/projects/#{api_uuid}/apps/#{app_identifier}/versions/#{build}/symbols/"
+
+          # Uploads the dSYM to TPA
+          RestClient.post(url, { version_string: version, mapping: File.new(path, 'rb') }, { :"X-API-Key" => params[:api_key] })
         rescue => ex
           UI.error(ex.to_s) # it fails, however we don't want to fail everything just for this
         end
