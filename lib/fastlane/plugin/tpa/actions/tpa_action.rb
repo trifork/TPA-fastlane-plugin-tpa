@@ -86,7 +86,6 @@ module Fastlane
         "Upload builds to The Perfect App (TPA.io)"
       end
 
-      # rubocop:disable Metrics/MethodLength
       def self.available_options
         Fastlane::Helper::TpaHelper.shared_available_options + [
           FastlaneCore::ConfigItem.new(key: :ipa,
@@ -156,7 +155,7 @@ module Fastlane
       end
 
       def self.is_supported?(platform)
-        [:ios, :android].include? platform
+        [:ios, :android].include?(platform)
       end
     end
   end
