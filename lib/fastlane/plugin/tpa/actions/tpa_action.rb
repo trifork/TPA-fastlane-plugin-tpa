@@ -7,6 +7,7 @@ module Fastlane
         command << verbose(params)
         command += upload_options(params)
         command << upload_url(params)
+        command << api_key(params)
         command << "--no-buffer -w \" | http_status %{http_code}\""
 
         shell_command = command.join(' ')
@@ -16,7 +17,7 @@ module Fastlane
       end
 
       def self.fail_on_error(result)
-        if result.include? '| http_status 200'
+        if result.include?('| http_status 201')
           UI.success('Your app has been uploaded to TPA')
         else
           UI.user_error!("Something went wrong while uploading your app to TPA: #{result}")
@@ -62,7 +63,7 @@ module Fastlane
       end
 
       def self.upload_url(params)
-        params[:upload_url]
+        "#{params[:tpa_host]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/versions/app/"
       end
 
       def self.verbose(params)
@@ -71,6 +72,10 @@ module Fastlane
         elsif !params[:progress_bar]
           "--silent"
         end
+      end
+
+      def self.api_key(params)
+        "-H \"X-API-Key: #{params[:api_key]}\""
       end
 
       #####################################################
@@ -116,12 +121,6 @@ module Fastlane
                                        verify_block: proc do |value|
                                          # validation is done in the action
                                        end),
-          FastlaneCore::ConfigItem.new(key: :upload_url,
-                                       env_name: "FL_TPA_UPLOAD_URL",
-                                       description: "TPA Upload URL",
-                                       verify_block: proc do |value|
-                                         UI.user_error!("Please pass your TPA Upload URL using `ENV['FL_TPA_UPLOAD_URL'] = 'value'`") unless value
-                                       end),
           FastlaneCore::ConfigItem.new(key: :publish,
                                        env_name: "FL_TPA_PUBLISH",
                                        description: "Publish build upon upload",
@@ -147,7 +146,31 @@ module Fastlane
                                        description: "Show progress bar of upload",
                                        is_string: false,
                                        default_value: true,
-                                       optional: true)
+                                       optional: true),
+          FastlaneCore::ConfigItem.new(key: :tpa_host,
+                                       env_name: "FL_TPA_HOST_URL",
+                                       description: "The TPA host url",
+                                       optional: false,
+                                       verify_block: proc do |value|
+                                         UI.user_error!("The TPA host cannot be empty") if value.to_s.length.zero?
+                                         UI.user_error!("Please specify a host name beginning with https://") unless value.start_with?("https://")
+                                         UI.user_error!("Please specify a host name which ends with .tpa.io") unless value.end_with?(".tpa.io", ".tpa.io/")
+                                       end),
+          FastlaneCore::ConfigItem.new(key: :api_uuid,
+                                       env_name: "FL_TPA_API_UUID",
+                                       description: "The API UUID of the project",
+                                       optional: false,
+                                       verify_block: proc do |value|
+                                         UI.user_error!("The TPA API UUID cannot be empty") if value.to_s.length.zero?
+                                       end),
+          FastlaneCore::ConfigItem.new(key: :api_key,
+                                       env_name: "FL_TPA_API_KEY",
+                                       description: "An API key to TPA",
+                                       optional: false,
+                                       verify_block: proc do |value|
+                                         UI.user_error!("The TPA API key cannot be empty") if value.to_s.length.zero?
+                                       end)
+
         ]
       end
       # rubocop:enable Metrics/MethodLength
