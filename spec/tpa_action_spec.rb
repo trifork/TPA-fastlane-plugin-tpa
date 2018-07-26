@@ -8,10 +8,10 @@ describe Fastlane::Actions::TpaAction do
 
     it "upload url is returned correctly" do
       params = {
-        tpa_host: "https://someproject.tpa.io",
+        base_url: "https://someproject.tpa.io",
         api_uuid: "some-very-special-uuid"
       }
-      url = "#{params[:tpa_host]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/versions/app/"
+      url = "#{params[:base_url]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/versions/app/"
       expect(Fastlane::Actions::TpaAction.upload_url(params)).to eq(url)
     end
 
@@ -39,7 +39,7 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch file_path
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
-            tpa_host: 'https://my.tpa.io',
+            base_url: 'https://my.tpa.io',
             api_uuid: 'xxx-yyy-zz',
             api_key: '12345678')
       end").runner.execute(:test)
@@ -57,7 +57,7 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch file_path
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
-            tpa_host: 'https://my.tpa.io',
+            base_url: 'https://my.tpa.io',
             api_uuid: 'xxx-yyy-zz',
             api_key: '12345678',
             notes: 'Now with iMessages extension a.k.a stickers for everyone!')
@@ -71,7 +71,7 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch file_path
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
-            tpa_host: 'https://my.tpa.io',
+            base_url: 'https://my.tpa.io',
             api_uuid: 'xxx-yyy-zz',
             api_key: '12345678',
             publish: true)
@@ -85,7 +85,7 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch file_path
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
-            tpa_host: 'https://my.tpa.io',
+            base_url: 'https://my.tpa.io',
             api_uuid: 'xxx-yyy-zz',
             api_key: '12345678',
             progress_bar: false)
@@ -100,7 +100,7 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch file_path
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
-            tpa_host: 'https://my.tpa.io',
+            base_url: 'https://my.tpa.io',
             api_uuid: 'xxx-yyy-zz',
             api_key: '12345678',
             force: true)
@@ -114,7 +114,7 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch file_path
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
-            tpa_host: 'https://my.tpa.io',
+            base_url: 'https://my.tpa.io',
             api_uuid: 'xxx-yyy-zz',
             api_key: '12345678',
             mapping: '/tmp/file.dSYM.zip')
@@ -128,7 +128,7 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch file_path
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(apk: '/tmp/file.apk',
-            tpa_host: 'https://my.tpa.io',
+            base_url: 'https://my.tpa.io',
             api_uuid: 'xxx-yyy-zz',
             api_key: '12345678')
       end").runner.execute(:test)
@@ -147,7 +147,7 @@ describe Fastlane::Actions::TpaAction do
         result = Fastlane::FastFile.new.parse("lane :test do
           tpa(apk: '/tmp/file.apk',
               ipa: '/tmp/file.ipa',
-              tpa_host: 'https://my.tpa.io',
+              base_url: 'https://my.tpa.io',
               api_uuid: 'xxx-yyy-zz',
               api_key: '12345678')
         end").runner.execute(:test)
@@ -157,7 +157,7 @@ describe Fastlane::Actions::TpaAction do
         result = Fastlane::FastFile.new.parse("lane :test do
           tpa(ipa: '/tmp/file.ipa',
               apk: '/tmp/file.apk',
-              tpa_host: 'https://my.tpa.io',
+              base_url: 'https://my.tpa.io',
               api_uuid: 'xxx-yyy-zz',
               api_key: '12345678')
         end").runner.execute(:test)
@@ -172,7 +172,7 @@ describe Fastlane::Actions::TpaAction do
         Fastlane::Actions.lane_context[Fastlane::Actions::SharedValues::GRADLE_APK_OUTPUT_PATH] = nil
 
         result = Fastlane::FastFile.new.parse("lane :test do
-          tpa(tpa_host: 'https://my.tpa.io',
+          tpa(base_url: 'https://my.tpa.io',
               api_uuid: 'xxx-yyy-zz',
               api_key: '12345678')
         end").runner.execute(:test)

@@ -63,7 +63,7 @@ module Fastlane
       end
 
       def self.upload_url(params)
-        "#{params[:tpa_host]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/versions/app/"
+        "#{params[:base_url]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/versions/app/"
       end
 
       def self.verbose(params)

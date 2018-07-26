@@ -40,7 +40,7 @@ module Fastlane
       def self.download_known_dsyms(params)
         UI.message("Downloading list of dSYMs already uploaded to TPA...")
 
-        url = "#{params[:tpa_host]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/#{params[:app_identifier]}/symbols/"
+        url = "#{params[:base_url]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/#{params[:app_identifier]}/symbols/"
 
         begin
           res = RestClient.get(url, { :"X-API-Key" => params[:api_key] })
@@ -80,7 +80,7 @@ module Fastlane
           end
 
           # Constructs the url
-          url = "#{params[:tpa_host]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/#{meta_data[:app_identifier]}/versions/#{meta_data[:build]}/symbols/"
+          url = "#{params[:base_url]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/#{meta_data[:app_identifier]}/versions/#{meta_data[:build]}/symbols/"
 
           # Uploads the dSYM to TPA
           RestClient.post(url, { version_string: meta_data[:version], mapping: File.new(path, 'rb') }, { :"X-API-Key" => params[:api_key] })
