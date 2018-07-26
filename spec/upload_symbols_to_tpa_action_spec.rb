@@ -18,11 +18,11 @@ describe Fastlane::Actions::UploadSymbolsToTpaAction do
 
       # Creates a fake temporary dSYM file to compare against
       dsym_path = '/tmp/com.theperfectapp.Awesome-App-1.0-78.dSYM.zip'
-      FileUtils.touch dsym_path
+      FileUtils.touch(dsym_path)
 
       # Performs the test
       should_upload = Fastlane::Actions::UploadSymbolsToTpaAction.should_upload_dsym(params, known_dsyms, dsym_path)
-      expect(should_upload).to eq true
+      expect(should_upload).to eq(true)
     end
 
     it 'does not upload an already uploaded dSYM file' do
@@ -40,11 +40,11 @@ describe Fastlane::Actions::UploadSymbolsToTpaAction do
 
       # Creates a fake temporary dSYM file to compare against
       dsym_path = '/tmp/com.theperfectapp.Awesome-App-1.0-78.dSYM.zip'
-      FileUtils.touch dsym_path
+      FileUtils.touch(dsym_path)
 
       # Performs the test
       should_upload = Fastlane::Actions::UploadSymbolsToTpaAction.should_upload_dsym(params, known_dsyms, dsym_path)
-      expect(should_upload).to eq false
+      expect(should_upload).to eq(false)
     end
   end
 
@@ -52,9 +52,9 @@ describe Fastlane::Actions::UploadSymbolsToTpaAction do
     it 'extracts the app identifier, version string and build number from the dSYM file path' do
       dsym_path = '/tmp/com.theperfectapp.Awesome-App-1.0-78.dSYM.zip'
       meta_data = Fastlane::Helper::UploadSymbolsToTpaHelper.parse_meta_data(dsym_path)
-      expect(meta_data[:app_identifier]).to eq 'com.theperfectapp.Awesome-App'
-      expect(meta_data[:version]).to eq '1.0'
-      expect(meta_data[:build]).to eq '78'
+      expect(meta_data[:app_identifier]).to eq('com.theperfectapp.Awesome-App')
+      expect(meta_data[:version]).to eq('1.0')
+      expect(meta_data[:build]).to eq('78')
     end
   end
 end
