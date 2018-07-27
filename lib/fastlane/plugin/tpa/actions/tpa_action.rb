@@ -78,7 +78,16 @@ module Fastlane
       #####################################################
 
       def self.description
-        "Upload builds to The Perfect App (TPA.io)"
+        "Upload app builds to The Perfect App (tpa.io)"
+      end
+
+      def self.details
+        [
+          "This plugin helps you to easily setup a CI/CD integration with The Perfect App. Simply",
+          "install this plugin and add the `tpa` command to your normal building lane. This will guide",
+          "you through the necessary parameters to use this plugin, which we recommend setting up as",
+          " as environmental to automate the whole process."
+        ].join(" ")
       end
 
       def self.available_options
@@ -149,7 +158,14 @@ module Fastlane
                                        optional: true)
         ]
       end
-      # rubocop:enable Metrics/MethodLength
+
+      def self.output
+        nil
+      end
+
+      def self.return_value
+        nil
+      end
 
       def self.authors
         ["mbogh"]
@@ -157,6 +173,16 @@ module Fastlane
 
       def self.is_supported?(platform)
         [:ios, :android].include?(platform)
+      end
+
+      def self.example_code
+        [
+          'tpa'
+        ]
+      end
+
+      def self.category
+        :beta
       end
     end
   end
