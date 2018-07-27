@@ -7,8 +7,8 @@ require 'fastlane/plugin/tpa/version'
 Gem::Specification.new do |spec|
   spec.name          = 'fastlane-plugin-tpa'
   spec.version       = Fastlane::Tpa::VERSION
-  spec.author        = 'Morten Bøgh'
-  spec.email         = 'morten@justabeech.com'
+  spec.author        = 'The Perfect App'
+  spec.email         = 'support@theperfectapp.com'
 
   spec.summary       = 'TPA gives you advanced user behaviour analytics, app distribution, crash analytics and more'
   spec.homepage      = "https://github.com/ThePerfectApp/fastlane-plugin-tpa"
