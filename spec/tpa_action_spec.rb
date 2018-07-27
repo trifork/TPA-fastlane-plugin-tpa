@@ -7,11 +7,12 @@ describe Fastlane::Actions::TpaAction do
     end
 
     it "upload url is returned correctly" do
-      url = 'https://someproject.tpa.io/some-very-special-uuid/upload'
-      expect(Fastlane::Actions::TpaAction.upload_url(upload_url: url)).to eq(url)
-
-      url = 'My Not So Normal URL ?__.../\.'
-      expect(Fastlane::Actions::TpaAction.upload_url(upload_url: url)).to eq(url)
+      params = {
+        base_url: "https://someproject.tpa.io",
+        api_uuid: "some-very-special-uuid"
+      }
+      url = "#{params[:base_url]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/versions/app/"
+      expect(Fastlane::Actions::TpaAction.upload_url(params)).to eq(url)
     end
 
     it "raises an error if result is not 'OK'" do
@@ -22,8 +23,8 @@ describe Fastlane::Actions::TpaAction do
       end.to raise_exception("Something went wrong while uploading your app to TPA: #{result}")
     end
 
-    it "does not raise an error if result is '200'" do
-      result = "| http_status 200"
+    it "does not raise an error if result is '201'" do
+      result = "| http_status 201"
 
       expect do
         Fastlane::Actions::TpaAction.fail_on_error(result)
@@ -38,7 +39,9 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
-            upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload')
+            base_url: 'https://my.tpa.io',
+            api_uuid: 'xxx-yyy-zz',
+            api_key: '12345678')
       end").runner.execute(:test)
 
       expect(result).to include("-F app=@\"/tmp/file.ipa\"")
@@ -46,7 +49,7 @@ describe Fastlane::Actions::TpaAction do
       expect(result).to include("-F force=false")
       expect(result).not_to(include("--silent")) # Do not include silent because of progress-bar
       expect(result).to include("--progress-bar")
-      expect(result).to include("https://my.tpa.io/xxx-yyy-zz/upload")
+      expect(result).to include("https://my.tpa.io/rest/api/v2/projects/xxx-yyy-zz/apps/versions/app/")
     end
 
     it "should include release notes if provided" do
@@ -54,7 +57,9 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
-            upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload',
+            base_url: 'https://my.tpa.io',
+            api_uuid: 'xxx-yyy-zz',
+            api_key: '12345678',
             notes: 'Now with iMessages extension a.k.a stickers for everyone!')
       end").runner.execute(:test)
 
@@ -66,7 +71,9 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
-            upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload',
+            base_url: 'https://my.tpa.io',
+            api_uuid: 'xxx-yyy-zz',
+            api_key: '12345678',
             publish: true)
       end").runner.execute(:test)
 
@@ -78,7 +85,9 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
-            upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload',
+            base_url: 'https://my.tpa.io',
+            api_uuid: 'xxx-yyy-zz',
+            api_key: '12345678',
             progress_bar: false)
       end").runner.execute(:test)
 
@@ -91,7 +100,9 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
-            upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload',
+            base_url: 'https://my.tpa.io',
+            api_uuid: 'xxx-yyy-zz',
+            api_key: '12345678',
             force: true)
       end").runner.execute(:test)
 
@@ -103,7 +114,9 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(ipa: '/tmp/file.ipa',
-            upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload',
+            base_url: 'https://my.tpa.io',
+            api_uuid: 'xxx-yyy-zz',
+            api_key: '12345678',
             mapping: '/tmp/file.dSYM.zip')
       end").runner.execute(:test)
 
@@ -115,7 +128,9 @@ describe Fastlane::Actions::TpaAction do
       FileUtils.touch(file_path)
       result = Fastlane::FastFile.new.parse("lane :test do
         tpa(apk: '/tmp/file.apk',
-            upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload')
+            base_url: 'https://my.tpa.io',
+            api_uuid: 'xxx-yyy-zz',
+            api_key: '12345678')
       end").runner.execute(:test)
 
       expect(result).to include("-F app=@\"/tmp/file.apk\"")
@@ -132,7 +147,9 @@ describe Fastlane::Actions::TpaAction do
         result = Fastlane::FastFile.new.parse("lane :test do
           tpa(apk: '/tmp/file.apk',
               ipa: '/tmp/file.ipa',
-              upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload')
+              base_url: 'https://my.tpa.io',
+              api_uuid: 'xxx-yyy-zz',
+              api_key: '12345678')
         end").runner.execute(:test)
       end.to raise_exception("You can't use 'apk' and 'ipa' options in one run")
 
@@ -140,7 +157,9 @@ describe Fastlane::Actions::TpaAction do
         result = Fastlane::FastFile.new.parse("lane :test do
           tpa(ipa: '/tmp/file.ipa',
               apk: '/tmp/file.apk',
-              upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload')
+              base_url: 'https://my.tpa.io',
+              api_uuid: 'xxx-yyy-zz',
+              api_key: '12345678')
         end").runner.execute(:test)
       end.to raise_exception("You can't use 'ipa' and 'apk' options in one run")
     end
@@ -153,7 +172,9 @@ describe Fastlane::Actions::TpaAction do
         Fastlane::Actions.lane_context[Fastlane::Actions::SharedValues::GRADLE_APK_OUTPUT_PATH] = nil
 
         result = Fastlane::FastFile.new.parse("lane :test do
-          tpa(upload_url: 'https://my.tpa.io/xxx-yyy-zz/upload')
+          tpa(base_url: 'https://my.tpa.io',
+              api_uuid: 'xxx-yyy-zz',
+              api_key: '12345678')
         end").runner.execute(:test)
       end.to raise_exception("You have to provide a build file")
     end
