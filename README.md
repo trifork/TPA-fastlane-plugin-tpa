@@ -71,18 +71,19 @@ lane :refresh_dsym do
 end
 ```
 
-## `tpa.io` vs. self-hosted
-If you are using a self-hosted version of TPA (for example `tpa.trifork.com`) then you will need to use version 1.x.x of this plugin. You can install version 1.x.x by specifying the following in your `Pluginfile`:
-
-```ruby
-gem 'fastlane-plugin-tpa', '~>1.0'
-```
-
+## Available for `tpa.io` Domains
 If you are using a managed version of TPA (for example `{your-subdomain.tpa.io}`, then feel free to use the latest version of this plugin. In your `Pluginfile` it should simply be written:
 
 ```ruby
 gem 'fastlane-plugin-tpa'
 ```
+
+If you do not have a `tpa.io` domain, you will need to use version 1.x.x of this plugin. You can install version 1.x.x by specifying the following in your `Pluginfile`:
+
+```ruby
+gem 'fastlane-plugin-tpa', '~>1.0'
+```
+
 
 ## Example
 
