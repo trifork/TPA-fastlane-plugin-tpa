@@ -148,7 +148,11 @@ module Fastlane
 
       def self.example_code
         [
-          'upload_symbols_to_tpa(dsym_path: "./App.dSYM.zip")'
+          'upload_symbols_to_tpa(dsym_path: "./App.dSYM.zip")',
+          'download_dsyms             # Download dSYM files from App Store Connect
+          upload_symbols_to_tpa      # Upload them to TPA
+          clean_build_artifacts      # Delete the local dSYM files
+          '
         ]
       end
 

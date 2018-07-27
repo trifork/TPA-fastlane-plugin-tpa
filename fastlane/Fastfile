@@ -1,6 +1,12 @@
-# Change URL to your TPA project
-ENV["FL_TPA_UPLOAD_URL"] ||= "https://my.tpa.io/xxx-yyy-zz/upload"
-
+desc 'Builds the app and uploads it to TPA'
 lane :test do
-  tpa
+  build_app                  # Builds the app
+  tpa                        # Uploads the app and dSYM files to TPA
+end
+
+desc 'Downloads the dSYM files from App Store Connect and uploads them to TPA'
+lane :refresh_dsym do
+  download_dsyms             # Download dSYM files from App Store Connect
+  upload_symbols_to_tpa      # Upload them to TPA
+  clean_build_artifacts      # Delete the local dSYM files
 end
