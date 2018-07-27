@@ -36,7 +36,7 @@ module Fastlane
         options << "-F publish=#{params[:publish]}"
 
         if params[:notes]
-          options << "-F notes=#{params[:notes]}"
+          options << "-F notes='#{params[:notes].gsub("'", "")}'"
         end
 
         if params[:progress_bar]
