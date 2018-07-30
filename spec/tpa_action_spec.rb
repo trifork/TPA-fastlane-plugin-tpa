@@ -1,5 +1,43 @@
 describe Fastlane::Actions::TpaAction do
   describe "The action" do
+    it "is able to handle a non-JSON response if the network request fails" do
+      # Sets up the params
+      params = {
+        base_url: "https://someproject.tpa.io",
+        api_uuid: "some-very-special-uuid",
+        ipa: '/tmp/file.ipa'
+      }
+
+      # Sets up the stub
+      url = "#{params[:base_url]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/versions/app/"
+      body = "Something went horribly wrong"
+      stub_request(:post, url).to_return(body: body, status: 403)
+
+      # Runs the action
+      expect do
+        Fastlane::Actions::TpaAction.run(params)
+      end.to raise_exception("Something went wrong while uploading your app to TPA: #{body}")
+    end
+
+    it "parses the \"detail\" parameter if the network request fails" do
+      # Sets up the params
+      params = {
+        base_url: "https://someproject.tpa.io",
+        api_uuid: "some-very-special-uuid",
+        ipa: '/tmp/file.ipa'
+      }
+
+      # Sets up the stub
+      url = "#{params[:base_url]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/versions/app/"
+      body = "{\"detail\": \"Something went wrong\"}"
+      stub_request(:post, url).to_return(body: body, status: 403)
+
+      # Runs the action
+      expect do
+        Fastlane::Actions::TpaAction.run(params)
+      end.to raise_exception("Something went wrong while uploading your app to TPA: Something went wrong")
+    end
+
     it "upload url is returned correctly" do
       params = {
         base_url: "https://someproject.tpa.io",

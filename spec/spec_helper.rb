@@ -11,5 +11,6 @@ end
 
 require 'fastlane' # to import the Action super class
 require 'fastlane/plugin/tpa' # import the actual plugin
+require 'webmock/rspec' # adds capability to mock http requests
 
 Fastlane.load_actions # load other actions (in case your plugin calls other actions or shared values)

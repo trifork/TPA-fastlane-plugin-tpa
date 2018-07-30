@@ -14,17 +14,12 @@ module Fastlane
         # Starts the upload
         begin
           RestClient.post(upload_url, body, headers)
-          UI.success('🎉 Your app has successfully been uploaded to TPA 🎉')
         rescue RestClient::ExceptionWithResponse => ex
-          res = JSON.parse(ex.response)
-          if res.key?("detail")
-            raise "Something went wrong while uploading your app to TPA: #{res['detail']}"
-          else
-            raise "Something went wrong while uploading your app to TPA: #{ex.response}"
-          end
+          handle_exception_response(ex)
         rescue => ex
-          UI.error('Something went wrong while uploading your app to TPA')
-          raise ex
+          UI.crash!("4Something went wrong while uploading your app to TPA: #{ex}")
+        else
+          UI.success("🎉 Your app has successfully been uploaded to TPA 🎉")
         end
       end
 
@@ -59,6 +54,19 @@ module Fastlane
           publish: params[:publish],
           force: params[:force]
         }
+      end
+
+      def self.handle_exception_response(ex)
+        if Fastlane::Helper::TpaHelper.valid_json?(ex.response)
+          res = JSON.parse(ex.response)
+          if res.key?("detail")
+            UI.crash!("Something went wrong while uploading your app to TPA: #{res['detail']}")
+          else
+            UI.crash!("Something went wrong while uploading your app to TPA: #{res}")
+          end
+        else
+          UI.crash!("Something went wrong while uploading your app to TPA: #{ex.response}")
+        end
       end
 
       #####################################################
