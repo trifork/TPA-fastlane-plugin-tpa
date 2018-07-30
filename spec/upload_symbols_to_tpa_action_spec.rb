@@ -46,6 +46,48 @@ describe Fastlane::Actions::UploadSymbolsToTpaAction do
       should_upload = Fastlane::Actions::UploadSymbolsToTpaAction.should_upload_dsym(params, known_dsyms, dsym_path)
       expect(should_upload).to eq(false)
     end
+
+    describe "Meta data" do
+      it "contains a description" do
+        expect(Fastlane::Actions::UploadSymbolsToTpaAction.description.empty?).to eq(false)
+      end
+
+      it "contains details" do
+        expect(Fastlane::Actions::UploadSymbolsToTpaAction.details.empty?).to eq(false)
+      end
+
+      # TODO: Test available options
+
+      it "does not have an output" do
+        expect(Fastlane::Actions::UploadSymbolsToTpaAction.output).to eq(nil)
+      end
+
+      it "does not have a return_value" do
+        expect(Fastlane::Actions::UploadSymbolsToTpaAction.return_value).to eq(nil)
+      end
+
+      it "mentions an author" do
+        expect(Fastlane::Actions::UploadSymbolsToTpaAction.authors.empty?).to eq(false)
+        expect(Fastlane::Actions::UploadSymbolsToTpaAction.authors.first.empty?).to eq(false)
+      end
+
+      it "supports iOS" do
+        expect(Fastlane::Actions::UploadSymbolsToTpaAction.is_supported?(:ios)).to eq(true)
+      end
+
+      it "supports tvOS" do
+        expect(Fastlane::Actions::UploadSymbolsToTpaAction.is_supported?(:tvos)).to eq(true)
+      end
+
+      it "provides example code" do
+        expect(Fastlane::Actions::UploadSymbolsToTpaAction.example_code.empty?).to eq(false)
+        expect(Fastlane::Actions::UploadSymbolsToTpaAction.example_code.first.empty?).to eq(false)
+      end
+
+      it "specifies a category" do
+        expect(Fastlane::Actions::UploadSymbolsToTpaAction.category).to eq(:misc)
+      end
+    end
   end
 
   describe 'The helper' do
@@ -55,6 +97,13 @@ describe Fastlane::Actions::UploadSymbolsToTpaAction do
       expect(meta_data[:app_identifier]).to eq('com.theperfectapp.Awesome-App')
       expect(meta_data[:version]).to eq('1.0')
       expect(meta_data[:build]).to eq('78')
+    end
+
+    it 'fails to extract app identifier, version string and build number from a random file' do
+      random_file_path = '/tmp/my-awesome-file.docx'
+      expect do
+        Fastlane::Helper::UploadSymbolsToTpaHelper.parse_meta_data(random_file_path)
+      end.to raise_exception("Failed to extract app identifier, version and build number from the #{random_file_path}")
     end
   end
 end

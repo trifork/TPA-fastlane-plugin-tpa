@@ -93,6 +93,48 @@ describe Fastlane::Actions::TpaAction do
         end").runner.execute(:test)
       end.to raise_exception("You have to provide a build file")
     end
+
+    describe "Meta data" do
+      it "contains a description" do
+        expect(Fastlane::Actions::TpaAction.description.empty?).to eq(false)
+      end
+
+      it "contains details" do
+        expect(Fastlane::Actions::TpaAction.details.empty?).to eq(false)
+      end
+
+      # TODO: Test available options
+
+      it "does not have an output" do
+        expect(Fastlane::Actions::TpaAction.output).to eq(nil)
+      end
+
+      it "does not have a return_value" do
+        expect(Fastlane::Actions::TpaAction.return_value).to eq(nil)
+      end
+
+      it "mentions an author" do
+        expect(Fastlane::Actions::TpaAction.authors.empty?).to eq(false)
+        expect(Fastlane::Actions::TpaAction.authors.first.empty?).to eq(false)
+      end
+
+      it "supports iOS" do
+        expect(Fastlane::Actions::TpaAction.is_supported?(:ios)).to eq(true)
+      end
+
+      it "supports Android" do
+        expect(Fastlane::Actions::TpaAction.is_supported?(:android)).to eq(true)
+      end
+
+      it "provides example code" do
+        expect(Fastlane::Actions::TpaAction.example_code.empty?).to eq(false)
+        expect(Fastlane::Actions::TpaAction.example_code.first.empty?).to eq(false)
+      end
+
+      it "specifies a category" do
+        expect(Fastlane::Actions::TpaAction.category).to eq(:beta)
+      end
+    end
   end
 
   describe "The helper" do

@@ -138,7 +138,7 @@ module Fastlane
       end
 
       def self.authors
-        ["mbogh"]
+        ["mbogh", "Stefan Veis Pennerup"]
       end
 
       def self.is_supported?(platform)
