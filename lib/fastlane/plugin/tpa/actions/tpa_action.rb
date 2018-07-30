@@ -7,6 +7,7 @@ module Fastlane
         command << verbose(params)
         command += upload_options(params)
         command << upload_url(params)
+        command << api_key(params)
         command << "--no-buffer -w \" | http_status %{http_code}\""
 
         shell_command = command.join(' ')
@@ -16,7 +17,7 @@ module Fastlane
       end
 
       def self.fail_on_error(result)
-        if result.include?('| http_status 200')
+        if result.include?('| http_status 201')
           UI.success('Your app has been uploaded to TPA')
         else
           UI.user_error!("Something went wrong while uploading your app to TPA: #{result}")
@@ -62,7 +63,7 @@ module Fastlane
       end
 
       def self.upload_url(params)
-        params[:upload_url]
+        "#{params[:base_url]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/versions/app/"
       end
 
       def self.verbose(params)
@@ -73,16 +74,29 @@ module Fastlane
         end
       end
 
+      def self.api_key(params)
+        "-H \"X-API-Key: #{params[:api_key]}\""
+      end
+
       #####################################################
       # @!group Documentation
       #####################################################
 
       def self.description
-        "Upload builds to The Perfect App (TPA.io)"
+        "Upload app builds to The Perfect App (tpa.io)"
+      end
+
+      def self.details
+        [
+          "This plugin helps you to easily setup a CI/CD integration with The Perfect App. Simply",
+          "install this plugin and add the `tpa` command to your normal building lane. This will guide",
+          "you through the necessary parameters to use this plugin, which we recommend setting up as",
+          " as environmental to automate the whole process."
+        ].join(" ")
       end
 
       def self.available_options
-        [
+        Fastlane::Helper::TpaHelper.shared_available_options + [
           FastlaneCore::ConfigItem.new(key: :ipa,
                                        env_name: "FL_TPA_IPA",
                                        description: "Path to your IPA file. Optional if you use the `gym` or `xcodebuild` action",
@@ -115,12 +129,6 @@ module Fastlane
                                        verify_block: proc do |value|
                                          # validation is done in the action
                                        end),
-          FastlaneCore::ConfigItem.new(key: :upload_url,
-                                       env_name: "FL_TPA_UPLOAD_URL",
-                                       description: "TPA Upload URL",
-                                       verify_block: proc do |value|
-                                         UI.user_error!("Please pass your TPA Upload URL using `ENV['FL_TPA_UPLOAD_URL'] = 'value'`") unless value
-                                       end),
           FastlaneCore::ConfigItem.new(key: :publish,
                                        env_name: "FL_TPA_PUBLISH",
                                        description: "Publish build upon upload",
@@ -149,7 +157,14 @@ module Fastlane
                                        optional: true)
         ]
       end
-      # rubocop:enable Metrics/MethodLength
+
+      def self.output
+        nil
+      end
+
+      def self.return_value
+        nil
+      end
 
       def self.authors
         ["mbogh"]
@@ -157,6 +172,16 @@ module Fastlane
 
       def self.is_supported?(platform)
         [:ios, :android].include?(platform)
+      end
+
+      def self.example_code
+        [
+          'tpa'
+        ]
+      end
+
+      def self.category
+        :beta
       end
     end
   end

@@ -40,7 +40,7 @@ module Fastlane
       def self.download_known_dsyms(params)
         UI.message("Downloading list of dSYMs already uploaded to TPA...")
 
-        url = "#{params[:tpa_host]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/#{params[:app_identifier]}/symbols/"
+        url = "#{params[:base_url]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/#{params[:app_identifier]}/symbols/"
 
         begin
           res = RestClient.get(url, { :"X-API-Key" => params[:api_key] })
@@ -80,7 +80,7 @@ module Fastlane
           end
 
           # Constructs the url
-          url = "#{params[:tpa_host]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/#{meta_data[:app_identifier]}/versions/#{meta_data[:build]}/symbols/"
+          url = "#{params[:base_url]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/#{meta_data[:app_identifier]}/versions/#{meta_data[:build]}/symbols/"
 
           # Uploads the dSYM to TPA
           RestClient.post(url, { version_string: meta_data[:version], mapping: File.new(path, 'rb') }, { :"X-API-Key" => params[:api_key] })
@@ -108,7 +108,7 @@ module Fastlane
       end
 
       def self.available_options
-        [
+        Fastlane::Helper::TpaHelper.shared_available_options + [
           FastlaneCore::ConfigItem.new(key: :dsym_path,
                                        env_name: "FL_UPLOAD_SYMBOLS_TO_TPA_DSYM_PATH",
                                        description: "Path to the dSYM zip file to upload",
@@ -118,29 +118,6 @@ module Fastlane
                                        verify_block: proc do |value|
                                          UI.user_error!("Couldn't find file at path '#{File.expand_path(value)}'") unless File.exist?(value)
                                          UI.user_error!("Symbolication file needs to be zip") unless value.end_with?(".zip")
-                                       end),
-          FastlaneCore::ConfigItem.new(key: :tpa_host,
-                                       env_name: "FL_TPA_HOST_URL",
-                                       description: "The TPA host url",
-                                       optional: false,
-                                       verify_block: proc do |value|
-                                         UI.user_error!("The TPA host cannot be empty") if value.to_s.length.zero?
-                                         UI.user_error!("Please specify a host name beginning with https://") unless value.start_with?("https://")
-                                         UI.user_error!("Please specify a host name which ends with .tpa.io") unless value.end_with?(".tpa.io", ".tpa.io/")
-                                       end),
-          FastlaneCore::ConfigItem.new(key: :api_uuid,
-                                       env_name: "FL_TPA_API_UUID",
-                                       description: "The API UUID of the project",
-                                       optional: false,
-                                       verify_block: proc do |value|
-                                         UI.user_error!("The TPA API UUID cannot be empty") if value.to_s.length.zero?
-                                       end),
-          FastlaneCore::ConfigItem.new(key: :api_key,
-                                       env_name: "FL_TPA_API_KEY",
-                                       description: "An API key to TPA",
-                                       optional: false,
-                                       verify_block: proc do |value|
-                                         UI.user_error!("The TPA API key cannot be empty") if value.to_s.length.zero?
                                        end),
           FastlaneCore::ConfigItem.new(key: :app_identifier,
                                        short_option: "-a",
@@ -171,7 +148,11 @@ module Fastlane
 
       def self.example_code
         [
-          'upload_symbols_to_tpa(dsym_path: "./App.dSYM.zip")'
+          'upload_symbols_to_tpa(dsym_path: "./App.dSYM.zip")',
+          'download_dsyms             # Download dSYM files from App Store Connect
+          upload_symbols_to_tpa      # Upload them to TPA
+          clean_build_artifacts      # Delete the local dSYM files
+          '
         ]
       end
 
