@@ -17,7 +17,7 @@ module Fastlane
         rescue RestClient::ExceptionWithResponse => ex
           handle_exception_response(ex)
         rescue => ex
-          UI.crash!("4Something went wrong while uploading your app to TPA: #{ex}")
+          UI.crash!("Something went wrong while uploading your app to TPA: #{ex}")
         else
           UI.success("🎉 Your app has successfully been uploaded to TPA 🎉")
         end
