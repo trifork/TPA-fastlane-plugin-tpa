@@ -29,6 +29,14 @@ module Fastlane
                                        end)
         ]
       end
+
+      # Returns true if the given parameter can be parsed to a JSON object, false otherwise
+      def self.valid_json?(json)
+        JSON.parse(json)
+        return true
+      rescue JSON::ParserError => _
+        return false
+      end
     end
   end
 end

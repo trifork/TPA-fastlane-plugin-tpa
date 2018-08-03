@@ -2,51 +2,25 @@ module Fastlane
   module Actions
     class TpaAction < Action
       def self.run(params)
-        command = []
-        command << "curl"
-        command << verbose(params)
-        command += upload_options(params)
-        command << upload_url(params)
-        command << api_key(params)
-        command << "--no-buffer -w \" | http_status %{http_code}\""
+        require 'rest_client'
 
-        shell_command = command.join(' ')
-        return shell_command if Helper.is_test?
-        result = Helper.backticks(shell_command, print: params[:verbose])
-        fail_on_error(result)
-      end
+        upload_url = upload_url(params)
+        headers = headers(params)
+        body = body(params)
 
-      def self.fail_on_error(result)
-        if result.include?('| http_status 201')
-          UI.success('Your app has been uploaded to TPA')
+        UI.message("Going to upload app to TPA")
+        UI.success("This might take a few minutes. Please don't interrupt the script.")
+
+        # Starts the upload
+        begin
+          RestClient.post(upload_url, body, headers)
+        rescue RestClient::ExceptionWithResponse => ex
+          handle_exception_response(ex)
+        rescue => ex
+          UI.crash!("Something went wrong while uploading your app to TPA: #{ex}")
         else
-          UI.user_error!("Something went wrong while uploading your app to TPA: #{result}")
+          UI.success("🎉 Your app has successfully been uploaded to TPA 🎉")
         end
-      end
-
-      def self.upload_options(params)
-        app_file = app_file(params)
-
-        options = []
-        options << "-F app=@\"#{app_file}\""
-
-        if params[:mapping]
-          options << "-F mapping=@\"#{params[:mapping]}\""
-        end
-
-        options << "-F publish=#{params[:publish]}"
-
-        if params[:notes]
-          options << "-F notes=#{params[:notes]}"
-        end
-
-        if params[:progress_bar]
-          options << "--progress-bar"
-        end
-
-        options << "-F force=#{params[:force]}"
-
-        options
       end
 
       def self.app_file(params)
@@ -66,16 +40,33 @@ module Fastlane
         "#{params[:base_url]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/versions/app/"
       end
 
-      def self.verbose(params)
-        if params[:verbose]
-          "--verbose"
-        elsif !params[:progress_bar]
-          "--silent"
-        end
+      def self.headers(params)
+        {
+          :"X-API-Key" => params[:api_key]
+        }
       end
 
-      def self.api_key(params)
-        "-H \"X-API-Key: #{params[:api_key]}\""
+      def self.body(params)
+        {
+          app: File.new(app_file(params), 'rb'),
+          mapping: params[:mapping],
+          notes: params[:notes],
+          publish: params[:publish],
+          force: params[:force]
+        }
+      end
+
+      def self.handle_exception_response(ex)
+        if Fastlane::Helper::TpaHelper.valid_json?(ex.response)
+          res = JSON.parse(ex.response)
+          if res.key?("detail")
+            UI.crash!("Something went wrong while uploading your app to TPA: #{res['detail']}")
+          else
+            UI.crash!("Something went wrong while uploading your app to TPA: #{res}")
+          end
+        else
+          UI.crash!("Something went wrong while uploading your app to TPA: #{ex.response}")
+        end
       end
 
       #####################################################
@@ -142,18 +133,6 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :notes,
                                        env_name: "FL_TPA_NOTES",
                                        description: "Release notes",
-                                       optional: true),
-          FastlaneCore::ConfigItem.new(key: :verbose,
-                                       env_name: "FL_TPA_VERBOSE",
-                                       description: "Detailed output",
-                                       is_string: false,
-                                       default_value: false,
-                                       optional: true),
-          FastlaneCore::ConfigItem.new(key: :progress_bar,
-                                       env_name: "FL_TPA_PROGRESS_BAR",
-                                       description: "Show progress bar of upload",
-                                       is_string: false,
-                                       default_value: true,
                                        optional: true)
         ]
       end
@@ -167,7 +146,7 @@ module Fastlane
       end
 
       def self.authors
-        ["mbogh"]
+        ["mbogh", "Stefan Veis Pennerup"]
       end
 
       def self.is_supported?(platform)
