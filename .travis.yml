@@ -1,4 +1,2 @@
-# os: osx # enable this if you need OS X support
+os: osx
 language: ruby
-rvm:
-  - 2.2.4
