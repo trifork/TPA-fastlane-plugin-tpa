@@ -30,24 +30,24 @@ This plugin makes interacting with TPA easy by providing you actions to upload `
 
 In particular, this plugin provides the following two actions:
 
-- [`tpa`](#tpa): uploads either an iOS `.ipa` app together with its corresponding `dSYM` to TPA. It is also capable of uploading an Android `.apk` app to TPA.
+- [`upload_to_tpa`](#upload_to_tpa): uploads either an iOS `.ipa` app together with its corresponding `dSYM` to TPA. It is also capable of uploading an Android `.apk` app to TPA.
 - [`upload_symbols_to_tpa`](#upload_symbols_to_tpa): Uploads only dSYM files to TPA
 
-### tpa
+### upload_to_tpa
 
-Use the `tpa` action in order to upload an app to TPA. A common building lane would look something like the following:
+Use the `upload_to_tpa` action (or the alias `tpa`) in order to upload an app to TPA. A common building lane would look something like the following:
 
 ```ruby
 desc 'Builds a beta version of the app and uploads it to TPA'
 lane :beta do
   build_app                  # Builds the app
-  tpa                        # Uploads the app and dSYM files to TPA
+  upload_to_tpa              # Uploads the app and dSYM files to TPA
 end
 ```
 
 ### upload_symbols_to_tpa
 
-If you have bitcode enabled in your iOS app, then you will need to download the `dSYM` files from App Store Connect and upload them to TPA so that the crash reports can be symbolicated. In order to help with this process, then you can make use of the `upload_symbols_to_tpa` action. 
+If you have bitcode enabled in your iOS app, then you will need to download the `dSYM` files from App Store Connect and upload them to TPA so that the crash reports can be symbolicated. In order to help with this process, then you can make use of the `upload_symbols_to_tpa` action.
 
 This action should be part of the [`download_dsyms`](https://docs.fastlane.tools/actions/download_dsyms/) action which is part of Fastlane.
 
@@ -74,6 +74,7 @@ end
 ```
 
 ## Available for `tpa.io` Domains
+
 If you are using a managed version of TPA (for example `{your-subdomain.tpa.io}`, then feel free to use the latest version of this plugin. In your `Pluginfile` it should simply be written:
 
 ```ruby
@@ -86,10 +87,9 @@ If you do not have a `tpa.io` domain, you will need to use version 1.x.x of this
 gem 'fastlane-plugin-tpa', '~>1.0'
 ```
 
-
 ## Example
 
-Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`. 
+Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
 
 ## Run tests for this plugin
 
@@ -99,7 +99,8 @@ To run both the tests, and code style validation, run
 rake
 ```
 
-To automatically fix many of the styling issues, use 
+To automatically fix many of the styling issues, use
+
 ```
 rubocop -a
 ```
