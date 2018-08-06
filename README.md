@@ -3,6 +3,8 @@
 </p>
 
 # TPA plugin
+[![Build Status](https://travis-ci.org/ThePerfectApp/fastlane-plugin-tpa.svg?branch=master)](https://travis-ci.org/ThePerfectApp/fastlane-plugin-tpa)
+[![Gem](https://img.shields.io/gem/v/fastlane-plugin-tpa.svg?style=flat)](https://rubygems.org/gems/fastlane-plugin-tpa)
 [![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-tpa)
 
 TPA gives you advanced user behaviour analytics, app distribution, crash analytics and more.

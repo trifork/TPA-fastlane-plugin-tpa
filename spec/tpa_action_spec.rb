@@ -1,11 +1,15 @@
 describe Fastlane::Actions::TpaAction do
   describe "The action" do
+    let(:fixtures_path) { File.expand_path("./spec/fixtures") }
+    let(:ipa_file) { File.join(fixtures_path, 'file.ipa') }
+    let(:apk_file) { File.join(fixtures_path, 'file.apk') }
+
     it "is able to handle a non-JSON response if the network request fails" do
       # Sets up the params
       params = {
         base_url: "https://someproject.tpa.io",
         api_uuid: "some-very-special-uuid",
-        ipa: '/tmp/file.ipa'
+        ipa: ipa_file
       }
 
       # Sets up the stub
@@ -24,7 +28,7 @@ describe Fastlane::Actions::TpaAction do
       params = {
         base_url: "https://someproject.tpa.io",
         api_uuid: "some-very-special-uuid",
-        ipa: '/tmp/file.ipa'
+        ipa: ipa_file
       }
 
       # Sets up the stub
@@ -50,14 +54,14 @@ describe Fastlane::Actions::TpaAction do
     it "should force upload, overriding existing build" do
       # Tests if the force key is empty
       params = {
-        ipa: '/tmp/file.ipa'
+        ipa: ipa_file
       }
       body = Fastlane::Actions::TpaAction.body(params)
       expect(body[:force]).to eq(nil)
 
       # Tests if the force key is true
       params = {
-        ipa: '/tmp/file.ipa',
+        ipa: ipa_file,
         force: true
       }
       body = Fastlane::Actions::TpaAction.body(params)
@@ -67,39 +71,39 @@ describe Fastlane::Actions::TpaAction do
     it "should include mapping file if added" do
       # Tests if the mapping flag is empty
       params = {
-        ipa: '/tmp/file.ipa'
+        ipa: ipa_file
       }
       body = Fastlane::Actions::TpaAction.body(params)
       expect(body[:force]).to eq(nil)
 
       # Tests if the mapping key is set
       params = {
-        ipa: '/tmp/file.ipa',
-        mapping: '/tmp/file.dSYM.zip'
+        ipa: ipa_file,
+        mapping: './spec/fixtures/file.dSYM.zip'
       }
       body = Fastlane::Actions::TpaAction.body(params)
-      expect(body[:mapping]).to eq('/tmp/file.dSYM.zip')
+      expect(body[:mapping]).to eq('./spec/fixtures/file.dSYM.zip')
     end
 
     it "supports Android as well" do
       params = {
-        apk: '/tmp/file.apk'
+        apk: apk_file
       }
       body = Fastlane::Actions::TpaAction.body(params)
-      expect(File.absolute_path(body[:app])).to eq('/tmp/file.apk')
+      expect(File.absolute_path(body[:app])).to eq(apk_file)
     end
 
     it "does not allow both ipa and apk at the same time" do
-      file_path_apk = '/tmp/file.apk'
+      file_path_apk = apk_file
       FileUtils.touch(file_path_apk)
 
-      file_path_ipa = '/tmp/file.ipa'
+      file_path_ipa = ipa_file
       FileUtils.touch(file_path_ipa)
 
       expect do
         result = Fastlane::FastFile.new.parse("lane :test do
-          tpa(apk: '/tmp/file.apk',
-              ipa: '/tmp/file.ipa',
+          tpa(apk: '#{apk_file}',
+              ipa: '#{ipa_file}',
               base_url: 'https://my.tpa.io',
               api_uuid: 'xxx-yyy-zz',
               api_key: '12345678')
@@ -108,8 +112,8 @@ describe Fastlane::Actions::TpaAction do
 
       expect do
         result = Fastlane::FastFile.new.parse("lane :test do
-          tpa(ipa: '/tmp/file.ipa',
-              apk: '/tmp/file.apk',
+          tpa(ipa: '#{ipa_file}',
+              apk: '#{apk_file}',
               base_url: 'https://my.tpa.io',
               api_uuid: 'xxx-yyy-zz',
               api_key: '12345678')
