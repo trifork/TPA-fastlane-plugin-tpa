@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    fastlane-plugin-tpa (2.0.0)
+    fastlane-plugin-tpa (2.0.1)
       rest-client (~> 2.0.2)
 
 GEM

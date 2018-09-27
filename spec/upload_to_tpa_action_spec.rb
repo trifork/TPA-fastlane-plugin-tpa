@@ -74,7 +74,7 @@ describe Fastlane::Actions::UploadToTpaAction do
         ipa: ipa_file
       }
       body = Fastlane::Actions::UploadToTpaAction.body(params)
-      expect(body[:force]).to eq(nil)
+      expect(body[:mapping]).to eq(nil)
 
       # Tests if the mapping key is set
       params = {
@@ -82,7 +82,7 @@ describe Fastlane::Actions::UploadToTpaAction do
         mapping: './spec/fixtures/file.dSYM.zip'
       }
       body = Fastlane::Actions::UploadToTpaAction.body(params)
-      expect(body[:mapping]).to eq('./spec/fixtures/file.dSYM.zip')
+      expect(File.path(body[:mapping])).to eq('./spec/fixtures/file.dSYM.zip')
     end
 
     it "supports Android as well" do

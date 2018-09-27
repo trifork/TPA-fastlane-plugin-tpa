@@ -49,7 +49,7 @@ module Fastlane
       def self.body(params)
         {
           app: File.new(app_file(params), 'rb'),
-          mapping: params[:mapping],
+          mapping: !params[:mapping].nil? && File.exist?(params[:mapping]) ? File.new(params[:mapping], 'rb') : nil,
           notes: params[:notes],
           publish: params[:publish],
           force: params[:force]
