@@ -47,13 +47,20 @@ module Fastlane
       end
 
       def self.body(params)
-        {
+        body = {
           app: File.new(app_file(params), 'rb'),
-          mapping: !params[:mapping].nil? && File.exist?(params[:mapping]) ? File.new(params[:mapping], 'rb') : nil,
           notes: params[:notes],
           publish: params[:publish],
           force: params[:force]
         }
+
+        # Only set mapping key if mapping file exists.
+        # Even setting a nil value will cause Fastlane to send an empty value causing an error.
+        if !params[:mapping].nil? && File.exist?(params[:mapping])
+          body[:mapping] = File.new(params[:mapping], 'rb')
+        end
+
+        body
       end
 
       def self.handle_exception_response(ex)
