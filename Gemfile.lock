@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    fastlane-plugin-tpa (2.0.2)
+    fastlane-plugin-tpa (2.0.4)
       rest-client (~> 2.0.2)
 
 GEM
@@ -219,4 +219,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   1.16.3
+   1.17.2
