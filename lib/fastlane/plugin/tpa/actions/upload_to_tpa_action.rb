@@ -17,7 +17,7 @@ module Fastlane
         rescue RestClient::ExceptionWithResponse => ex
           handle_exception_response(ex)
         rescue => ex
-          UI.crash!("Something went wrong while uploading your app to TPA: #{ex}")
+          UI.user_error!("Something went wrong while uploading your app to TPA: #{ex}")
         else
           UI.success("🎉 Your app has successfully been uploaded to TPA 🎉")
         end
@@ -56,8 +56,27 @@ module Fastlane
 
         # Only set mapping key if mapping file exists.
         # Even setting a nil value will cause Fastlane to send an empty value causing an error.
-        if !params[:mapping].nil? && File.exist?(params[:mapping])
-          body[:mapping] = File.new(params[:mapping], 'rb')
+        unless params[:mapping].nil?
+          case params[:mapping]
+          when String
+            if File.exist?(params[:mapping])
+              body[:mapping] = File.new(params[:mapping], 'rb')
+            end
+          when Array
+            mapping_files = []
+            params[:mapping].each do |mapping|
+              if File.exist?(mapping)
+                mapping_files.push(File.new(mapping, 'rb'))
+              else
+                UI.message "Unable to find mapping file at #{mapping}"
+              end
+            end
+            unless mapping_files.empty?
+              body[:mapping] = mapping_files
+            end
+          else
+            UI.user_error!("Specified mapping files do not exists.")
+          end
         end
 
         body
@@ -67,12 +86,12 @@ module Fastlane
         if Fastlane::Helper::TpaHelper.valid_json?(ex.response)
           res = JSON.parse(ex.response)
           if res.key?("detail")
-            UI.crash!("Something went wrong while uploading your app to TPA: #{res['detail']}")
+            UI.abort_with_message!("Something went wrong while uploading your app to TPA: #{res['detail']}")
           else
-            UI.crash!("Something went wrong while uploading your app to TPA: #{res}")
+            UI.abort_with_message!("Something went wrong while uploading your app to TPA: #{res}")
           end
         else
-          UI.crash!("Something went wrong while uploading your app to TPA: #{ex.response}")
+          UI.abort_with_message!("Something went wrong while uploading your app to TPA: #{ex.response}")
         end
       end
 
@@ -121,9 +140,10 @@ module Fastlane
                                        end),
           FastlaneCore::ConfigItem.new(key: :mapping,
                                        env_name: "FL_TPA_MAPPING",
-                                       description: "Path to your symbols file. For iOS provide path to app.dSYM.zip. For Android provide path to mappings.txt file",
+                                       description: "Path to your symbols files. For iOS provide path to app.dSYM.zip. For Android provide path to mappings.txt file. For React-Native also provide paths to your source-maps",
                                        default_value: Actions.lane_context[SharedValues::DSYM_OUTPUT_PATH],
                                        optional: true,
+                                       is_string: false,
                                        verify_block: proc do |value|
                                          # validation is done in the action
                                        end),
