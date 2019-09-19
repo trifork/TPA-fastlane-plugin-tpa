@@ -1,9 +1,9 @@
 module Fastlane
   module Actions
     module SharedValues
-      # Download URL
+      # Direct installation URL to the uploaded app
       TPA_INSTALL_URL = :TPA_INSTALL_URL
-      # URL to TPA.io where you can see this build
+      # URL to tpa.io where you can see (and download) the app
       TPA_BUILD_URL = :TPA_BUILD_URL
     end
 
