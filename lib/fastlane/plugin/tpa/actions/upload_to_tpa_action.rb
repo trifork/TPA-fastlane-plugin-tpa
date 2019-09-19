@@ -1,5 +1,10 @@
 module Fastlane
   module Actions
+    module SharedValues
+      TPA_INSTALL_URL = :TPA_INSTALL_URL
+      TPA_BUILD_URL = :TPA_BUILD_URL
+    end
+
     class UploadToTpaAction < Action
       def self.run(params)
         require 'rest_client'
@@ -8,18 +13,29 @@ module Fastlane
         headers = headers(params)
         body = body(params)
 
-        UI.message("Going to upload app to TPA")
-        UI.success("This might take a few minutes. Please don't interrupt the script.")
+        UI.success "🚀 Uploading app to TPA 🚀"
+        UI.important "This might take a few minutes. Please don't interrupt the script. 🚀"
 
         # Starts the upload
         begin
-          RestClient.post(upload_url, body, headers)
+          response = RestClient.post(upload_url, body, headers)
+          if Fastlane::Helper::TpaHelper.valid_json?(response)
+            res = JSON.parse(response)
+            app_name = res["name"]
+            version = res["version_string"]
+            build_number = res["version_number"]
+            build_url = res["build_url"]
+            install_url = res["install_url"]
+            Actions.lane_context[SharedValues::TPA_INSTALL_URL] = install_url
+            Actions.lane_context[SharedValues::TPA_BUILD_URL] = build_url
+            UI.success "🎉 #{app_name} version #{version} (#{build_number}) has successfully been uploaded to TPA 🎉"
+          else
+            UI.abort_with_message!("Something went wrong while uploading your app to TPA: #{ex.response}")
+          end
         rescue RestClient::ExceptionWithResponse => ex
           handle_exception_response(ex)
         rescue => ex
-          UI.user_error!("Something went wrong while uploading your app to TPA: #{ex}")
-        else
-          UI.success("🎉 Your app has successfully been uploaded to TPA 🎉")
+          UI.abort_with_message!("Something went wrong while uploading your app to TPA: #{ex}")
         end
       end
 
@@ -173,7 +189,7 @@ module Fastlane
       end
 
       def self.authors
-        ["mbogh", "Stefan Veis Pennerup"]
+        ["mbogh", "Stefan Veis Pennerup", "madsbogeskov"]
       end
 
       def self.is_supported?(platform)
