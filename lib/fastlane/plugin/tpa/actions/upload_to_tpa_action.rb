@@ -15,8 +15,8 @@ module Fastlane
         headers = headers(params)
         body = body(params)
 
-        UI.success "🚀 Uploading app to TPA 🚀"
-        UI.important "This might take a few minutes. Please don't interrupt the script. 🚀"
+        UI.success("🚀 Uploading app to TPA 🚀")
+        UI.important("This might take a few minutes. Please don't interrupt the script. 🚀")
 
         # Starts the upload
         begin
@@ -30,7 +30,7 @@ module Fastlane
             install_url = res["install_url"]
             Actions.lane_context[SharedValues::TPA_INSTALL_URL] = install_url
             Actions.lane_context[SharedValues::TPA_BUILD_URL] = build_url
-            UI.success "🎉 #{app_name} version #{version} (#{build_number}) has successfully been uploaded to TPA 🎉"
+            UI.success("🎉 #{app_name} version #{version} (#{build_number}) has successfully been uploaded to TPA 🎉")
           else
             UI.abort_with_message!("Something went wrong while uploading your app to TPA")
           end
@@ -86,7 +86,7 @@ module Fastlane
               if File.exist?(mapping)
                 mapping_files.push(File.new(mapping, 'rb'))
               else
-                UI.message "Unable to find mapping file at #{mapping}"
+                UI.message("Unable to find mapping file at #{mapping}")
               end
             end
             unless mapping_files.empty?
