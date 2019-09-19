@@ -30,7 +30,7 @@ module Fastlane
             Actions.lane_context[SharedValues::TPA_BUILD_URL] = build_url
             UI.success "🎉 #{app_name} version #{version} (#{build_number}) has successfully been uploaded to TPA 🎉"
           else
-            UI.abort_with_message!("Something went wrong while uploading your app to TPA: #{ex.response}")
+            UI.abort_with_message!("Something went wrong while uploading your app to TPA")
           end
         rescue RestClient::ExceptionWithResponse => ex
           handle_exception_response(ex)
