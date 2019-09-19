@@ -136,6 +136,28 @@ describe Fastlane::Actions::UploadToTpaAction do
       end.to raise_exception("You have to provide a build file")
     end
 
+    it "correctly updates lane_context with values from response" do
+      # Sets up the params
+      params = {
+          base_url: "https://someproject.tpa.io",
+          api_uuid: "some-very-special-uuid",
+          ipa: ipa_file
+      }
+
+      build_url = "https://build-url.com"
+      install_url = "https://install-url.com"
+
+      # Sets up the stub
+      url = "#{params[:base_url]}/rest/api/v2/projects/#{params[:api_uuid]}/apps/versions/app/"
+      body = "{\"build_url\":\"#{build_url}\", \"install_url\":\"#{install_url}\"}"
+      stub_request(:post, url).to_return(body: body, status: 200)
+
+      Fastlane::Actions::UploadToTpaAction.run(params)
+
+      expect(Fastlane::Actions.lane_context[Fastlane::Actions::SharedValues::TPA_BUILD_URL]).to eq(build_url)
+      expect(Fastlane::Actions.lane_context[Fastlane::Actions::SharedValues::TPA_INSTALL_URL]).to eq(install_url)
+    end
+
     describe "Meta data" do
       it "contains a description" do
         expect(Fastlane::Actions::UploadToTpaAction.description.empty?).to eq(false)
