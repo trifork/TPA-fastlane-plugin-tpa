@@ -24,13 +24,22 @@ This project is a [fastlane](https://github.com/fastlane/fastlane) plugin. To ge
 fastlane add_plugin tpa
 ```
 
+### Environment Variables
+
+It can be very helpful to set up your TPA credentials in .env files. The following keys are available:
+
+- `FL_TPA_BASE_URL`: The base url for your TPA instance
+- `FL_TPA_API_UUID`: The API UUID for your TPA project
+- `FL_TPA_API_KEY`: Your personal TPA API key
+
 ## Overview
 
-This plugin makes interacting with TPA easy by providing you actions to upload `.ipa`, `.apk` and `.dSYM` files directly to TPA.
+This plugin makes interacting with TPA easy by providing you actions to upload `.ipa`, `.apk`, `.aab` and `.dSYM` files directly to TPA.
 
 In particular, this plugin provides the following two actions:
 
-- [`upload_to_tpa`](#upload_to_tpa): uploads either an iOS `.ipa` app together with its corresponding `dSYM` to TPA. It is also capable of uploading an Android `.apk` app to TPA.
+- [`upload_to_tpa`](#upload_to_tpa): uploads either an iOS `.ipa` app together with its corresponding `dSYM` to TPA. It is also capable of uploading an Android `.apk` or `.aab` app to TPA.
+- [`tpa`](#upload_to_tpa) alias for `upload_to_tpa`
 - [`upload_symbols_to_tpa`](#upload_symbols_to_tpa): Uploads only dSYM files to TPA
 
 ### upload_to_tpa
@@ -71,20 +80,6 @@ lane :refresh_dsym do
   upload_symbols_to_tpa                # Upload them to TPA
   clean_build_artifacts                # Delete the local dSYM files
 end
-```
-
-## Available for `tpa.io` Domains
-
-If you are using a managed version of TPA (for example `{your-subdomain.tpa.io}`, then feel free to use the latest version of this plugin. In your `Pluginfile` it should simply be written:
-
-```ruby
-gem 'fastlane-plugin-tpa'
-```
-
-If you do not have a `tpa.io` domain, you will need to use version 1.x.x of this plugin. You can install version 1.x.x by specifying the following in your `Pluginfile`:
-
-```ruby
-gem 'fastlane-plugin-tpa', '~>1.0'
 ```
 
 ## Example

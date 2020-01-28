@@ -44,7 +44,8 @@ module Fastlane
       def self.app_file(params)
         app_file = [
           params[:ipa],
-          params[:apk]
+          params[:apk],
+          params[:aab]
         ].detect { |e| !e.to_s.empty? }
 
         if app_file.nil?
@@ -140,7 +141,7 @@ module Fastlane
                                        verify_block: proc do |value|
                                          UI.user_error!("Couldn't find ipa file at path '#{value}'") unless File.exist?(value)
                                        end,
-                                       conflicting_options: [:apk],
+                                       conflicting_options: [:apk, :aab],
                                        conflict_block: proc do |value|
                                          UI.user_error!("You can't use 'ipa' and '#{value.key}' options in one run")
                                        end),
@@ -152,9 +153,21 @@ module Fastlane
                                        verify_block: proc do |value|
                                          UI.user_error!("Couldn't find apk file at path '#{value}'") unless File.exist?(value)
                                        end,
-                                       conflicting_options: [:ipa],
+                                       conflicting_options: [:aab, :ipa],
                                        conflict_block: proc do |value|
                                          UI.user_error!("You can't use 'apk' and '#{value.key}' options in one run")
+                                       end),
+          FastlaneCore::ConfigItem.new(key: :aab,
+                                       env_name: "FL_TPA_AAB",
+                                       description: "Path to your AAB file",
+                                       default_value: Actions.lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH],
+                                       optional: true,
+                                       verify_block: proc do |value|
+                                         UI.user_error!("Couldn't find aab file at path '#{value}'") unless File.exist?(value)
+                                       end,
+                                       conflicting_options: [:apk, :ipa],
+                                       conflict_block: proc do |value|
+                                         UI.user_error!("You can't use 'aab' and '#{value.key}' options in one run")
                                        end),
           FastlaneCore::ConfigItem.new(key: :mapping,
                                        env_name: "FL_TPA_MAPPING",
