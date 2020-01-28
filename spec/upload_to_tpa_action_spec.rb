@@ -3,6 +3,7 @@ describe Fastlane::Actions::UploadToTpaAction do
     let(:fixtures_path) { File.expand_path("./spec/fixtures") }
     let(:ipa_file) { File.join(fixtures_path, 'file.ipa') }
     let(:apk_file) { File.join(fixtures_path, 'file.apk') }
+    let(:aab_file) { File.join(fixtures_path, 'file.aab') }
 
     it "is able to handle a non-JSON response if the network request fails" do
       # Sets up the params
@@ -91,6 +92,14 @@ describe Fastlane::Actions::UploadToTpaAction do
       }
       body = Fastlane::Actions::UploadToTpaAction.body(params)
       expect(File.absolute_path(body[:app])).to eq(apk_file)
+    end
+
+    it "supports Android app bundles" do
+      params = {
+          aab: aab_file
+      }
+      body = Fastlane::Actions::UploadToTpaAction.body(params)
+      expect(File.absolute_path(body[:app])).to eq(aab_file)
     end
 
     it "does not allow both ipa and apk at the same time" do
